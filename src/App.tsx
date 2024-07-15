@@ -1,36 +1,41 @@
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
-import { createStore } from './store/store';
 import { useSyncExternalStore } from 'react';
+import './App.css';
+import { createList } from './store/createList';
+import { createItem } from './store/createItem';
 
-const store = createStore({ resolver: () => ({ count: 1 }) });
+const list = createList({
+  key: 'count',
+  getId: (data) => data.id,
+  resolver: () => [
+    { id: 1, name: 'Mike' },
+    { id: 2, name: 'Maria' },
+  ],
+});
+
+const item = createItem({
+  key: 'count',
+  getId: (data) => data.id,
+  resolver: () => ({ id: 1, name: 'Mike' }),
+});
 
 function App() {
-  const { count } = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const names = useSyncExternalStore(list.subscribe, list.getSnapshot);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => store.setState({ count: count + 1 })}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        {names.map((name) => (
+          <p>{name.name}</p>
+        ))}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      <button
+        onClick={() => {
+          item.setState({ id: 1, name: 'Ze' });
+        }}
+      >
+        change
+      </button>
     </>
   );
 }
