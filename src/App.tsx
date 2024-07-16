@@ -1,24 +1,28 @@
 import './App.css';
 
 import { createItem } from './store/createItem';
-import { useList } from './store/useList';
+import { createListHook } from './store/useList';
+
+const key = 'person';
 
 const item = createItem({
-  key: 'count',
+  key,
   getId: (data) => data.id,
   resolver: () => ({ id: 1, name: 'Mike' }),
 });
 
+const useList = createListHook({
+  key,
+  getId: (data) => data.id,
+  resolver: (name: string) =>
+    Promise.resolve([
+      { id: 1, name: 'Mike' },
+      { id: 2, name: 'Maria' },
+    ]),
+});
+
 function App() {
-  const names = useList({
-    key: 'count',
-    getId: (data) => data.id,
-    resolver: () =>
-      Promise.resolve([
-        { id: 1, name: 'Mike' },
-        { id: 2, name: 'Maria' },
-      ]),
-  });
+  const names = useList('bufa');
 
   return (
     <>

@@ -33,7 +33,12 @@ export function createItem<TData, TId>({
 
   function setState(newState: TData) {
     globalStore[itemKey].externals.data = newState;
-    globalStore[listKey].internals.triggerChange();
+
+    const list = globalStore[listKey];
+
+    if (list) {
+      list.internals.triggerChange();
+    }
 
     triggerChange();
   }
