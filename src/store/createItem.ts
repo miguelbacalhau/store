@@ -1,4 +1,4 @@
-import { globalStore } from './globalStore';
+import { globalStore, initEntry } from './globalStore';
 import { getItemKey, getListKey } from './keys';
 
 type CreateItemArgs<TData, TId> = {
@@ -32,17 +32,18 @@ export function createItem<TData, TId>({
   }
 
   function setState(newState: TData) {
-    globalStore[itemKey].data = newState;
-    globalStore[listKey].triggerChange?.();
+    globalStore[itemKey].externals.data = newState;
+    globalStore[listKey].internals.triggerChange();
 
     triggerChange();
   }
 
   function getSnapshot() {
-    return globalStore[itemKey].data as TData;
+    return globalStore[itemKey].externals.data as TData;
   }
 
-  globalStore[itemKey] = { triggerChange, data };
+  globalStore[itemKey] = initEntry(triggerChange);
+  globalStore[itemKey].externals.data = data;
 
   return { subscribe, getSnapshot, setState };
 }

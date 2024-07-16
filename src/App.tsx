@@ -1,16 +1,7 @@
-import { useSyncExternalStore } from 'react';
 import './App.css';
-import { createList } from './store/createList';
-import { createItem } from './store/createItem';
 
-const list = createList({
-  key: 'count',
-  getId: (data) => data.id,
-  resolver: () => [
-    { id: 1, name: 'Mike' },
-    { id: 2, name: 'Maria' },
-  ],
-});
+import { createItem } from './store/createItem';
+import { useList } from './store/useList';
 
 const item = createItem({
   key: 'count',
@@ -19,15 +10,19 @@ const item = createItem({
 });
 
 function App() {
-  const names = useSyncExternalStore(list.subscribe, list.getSnapshot);
+  const names = useList({
+    key: 'count',
+    getId: (data) => data.id,
+    resolver: () =>
+      Promise.resolve([
+        { id: 1, name: 'Mike' },
+        { id: 2, name: 'Maria' },
+      ]),
+  });
 
   return (
     <>
-      <div className="card">
-        {names.map((name) => (
-          <p>{name.name}</p>
-        ))}
-      </div>
+      <div className="card">{names?.map((name) => <p>{name.name}</p>)}</div>
 
       <button
         onClick={() => {

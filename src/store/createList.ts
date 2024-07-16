@@ -1,16 +1,14 @@
-import { globalStore } from './globalStore';
+import { globalStore, initEntry,StoreEntry } from './globalStore';
 import { getItemKey } from './keys';
 
-type CreateListArgs<TData, TId> = {
+export type CreateListArgs<TData, TId> = {
   key: string;
   getId: (data: TData) => TId;
-  resolver: () => TData[];
 };
 
 export function createList<TData, TId>({
   key,
   getId,
-  resolver,
 }: CreateListArgs<TData, TId>) {
   let listeners: (() => void)[] = [];
 
@@ -18,18 +16,7 @@ export function createList<TData, TId>({
   // infinite re-renders
   let list: TData[] = [];
 
-  const data = resolver();
-
-  const dataIds = data.map((entry) => {
-    const id = getId(entry);
-    const itemKey = getItemKey(key, id);
-
-    globalStore[itemKey] = { data: entry };
-
-    return id;
-  });
-
-  globalStore[key] = { data: dataIds, triggerChange };
+  globalStore[key] = initEntry(triggerChange);
 
   function triggerChange() {
     // create a new reference for the list cache so the
@@ -46,14 +33,34 @@ export function createList<TData, TId>({
     };
   }
 
-  function setState(newState: TData) {
-    globalStore[key].data = newState;
+  function setState(state: Partial<StoreEntry['externals']>) {
+    const externals = globalStore[key].externals;
+
+    const dataIds = (state?.data as TData[] | null)?.map((item) => {
+      const id = getId(item);
+      const itemKey = getItemKey(key, id);
+
+      globalStore[itemKey] = initEntry(() => {});
+      globalStore[itemKey].externals.data = item;
+
+      return id;
+    });
+
+    globalStore[key].externals = {
+      ...externals,
+      ...state,
+      ...(dataIds ? { data: dataIds } : {}),
+    };
 
     triggerChange();
   }
 
   function getSnapshot() {
-    const dataIds = globalStore[key].data as TId[];
+    const dataIds = globalStore[key].externals.data as TId[] | null;
+
+    if (!dataIds) {
+      return null;
+    }
 
     // reset array
     list.length = 0;
@@ -61,7 +68,7 @@ export function createList<TData, TId>({
     dataIds.forEach((id) => {
       const itemKey = getItemKey(key, id);
 
-      list.push(globalStore[itemKey].data as TData);
+      list.push(globalStore[itemKey].externals.data as TData);
     });
 
     return list;
