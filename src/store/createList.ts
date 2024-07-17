@@ -18,10 +18,20 @@ export function createList<TData, TId>({
   key,
   getId,
 }: CreateListArgs<TData, TId>) {
-  initEntry(key, triggerChange);
-
   function triggerChange() {
     triggerListener(key);
+  }
+
+  function forceChange() {
+    const listExternals = getEntryExternals<TId[]>(key);
+    const ids = listExternals.data;
+
+    setEntryExternals(key, {
+      ...listExternals,
+      data: ids ? [...ids] : [],
+    });
+
+    triggerChange();
   }
 
   function subscribe(listener: () => void) {
@@ -32,8 +42,8 @@ export function createList<TData, TId>({
     };
   }
 
-  function setState(state: Partial<StoreEntry['externals']>) {
-    const dataIds = (state?.data as TData[] | null)?.map((item) => {
+  function setState(state: Partial<StoreEntry<TData[]>['externals']>) {
+    const dataIds = state?.data?.map((item) => {
       const id = getId(item);
       const itemKey = getItemKey(key, id);
 
@@ -52,8 +62,10 @@ export function createList<TData, TId>({
   }
 
   function getSnapshot() {
-    return getEntryExternals<TData[]>(key);
+    return getEntryExternals<TId[]>(key);
   }
+
+  initEntry(key, forceChange);
 
   return { subscribe, getSnapshot, setState };
 }

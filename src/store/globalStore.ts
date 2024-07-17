@@ -5,24 +5,24 @@ export type StoreEntry<TData = unknown> = {
   };
   internals: {
     fetched: boolean;
-    triggerChange: () => void;
+    forceChange: () => void;
   };
 };
 
 export const globalStore: Record<string, StoreEntry> = {};
 
-export function initEntry(key: string, triggerChange: () => void) {
+export function initEntry(key: string, forceChange: () => void) {
   const entry = globalStore[key];
 
   if (!entry) {
     globalStore[key] = {
       externals: { data: null, isLoading: false },
-      internals: { triggerChange, fetched: false },
+      internals: { forceChange, fetched: false },
     };
   } else {
     // in case the entry already has been initialized we guarantee
     // that the trigger change callback is not a noop
-    globalStore[key].internals.triggerChange = triggerChange;
+    globalStore[key].internals.forceChange = forceChange;
   }
 }
 

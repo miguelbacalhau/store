@@ -1,5 +1,3 @@
-import './App.css';
-
 import { useState } from 'react';
 
 import { createItemHook } from './store/createItemHook';
@@ -46,14 +44,22 @@ function App() {
 }
 
 function Person() {
-  const person = useItem({ id: 1 });
+  const person1 = useItem({ id: 1 });
+  const person2 = useItem({ id: 3 });
 
   return (
     <div>
-      <div className="card">{person.data?.name}</div>
+      <div className="card">{person1.data?.name}</div>
 
       <button
-        onClick={() => person.mutate({ name: `Person ${Math.random()}` })}
+        onClick={() => person1.mutate({ name: `Person ${Math.random()}` })}
+      >
+        Change Name
+      </button>
+      <div className="card">{person2.data?.name}</div>
+
+      <button
+        onClick={() => person2.mutate({ name: `Person ${Math.random()}` })}
       >
         Change Name
       </button>

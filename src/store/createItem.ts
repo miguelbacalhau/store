@@ -41,9 +41,12 @@ export function createItem<TData, TId, TArgs>({
     setEntryExternals(itemKey, state);
 
     const listInternals = getEntryInternals(listKey);
+    const listExternals = getEntryExternals<TId[]>(listKey);
 
-    if (listInternals) {
-      listInternals.triggerChange();
+    const isItemInList = listExternals.data?.includes(id);
+
+    if (listInternals && isItemInList) {
+      listInternals.forceChange();
     }
 
     triggerChange();
