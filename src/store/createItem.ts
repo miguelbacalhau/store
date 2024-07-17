@@ -1,54 +1,59 @@
-import { globalStore, initEntry } from './globalStore';
+import {
+  getEntryExternals,
+  getEntryInternals,
+  initEntry,
+  setEntryExternals,
+  StoreEntry,
+} from './globalStore';
 import { getItemKey, getListKey } from './keys';
+import { createListener } from './listener';
 
-type CreateItemArgs<TData, TId> = {
+export type CreateItemArgs<TData, TId, TArgs> = {
   key: string;
-  getId: (data: TData) => TId;
-  resolver: () => TData;
+  getId: (args: TArgs, data?: TData) => TId;
+  args: TArgs;
 };
 
-export function createItem<TData, TId>({
+const { addListener, removeListener, triggerListener } = createListener();
+
+export function createItem<TData, TId, TArgs>({
   key,
   getId,
-  resolver,
-}: CreateItemArgs<TData, TId>) {
-  let listeners: (() => void)[] = [];
-
-  const data = resolver();
-  const id = getId(data);
+  args,
+}: CreateItemArgs<TData, TId, TArgs>) {
+  const id = getId(args);
   const itemKey = getItemKey(key, id);
   const listKey = getListKey(key);
 
   function subscribe(listener: () => void) {
-    listeners.push(listener);
+    addListener(itemKey, listener);
 
     return () => {
-      listeners = listeners.filter((l) => l !== listener);
+      removeListener(itemKey, listener);
     };
   }
 
   function triggerChange() {
-    listeners.forEach((listener) => listener());
+    triggerListener(itemKey);
   }
 
-  function setState(newState: TData) {
-    globalStore[itemKey].externals.data = newState;
+  function setState(state: Partial<StoreEntry['externals']>) {
+    setEntryExternals(itemKey, state);
 
-    const list = globalStore[listKey];
+    const listInternals = getEntryInternals(listKey);
 
-    if (list) {
-      list.internals.triggerChange();
+    if (listInternals) {
+      listInternals.triggerChange();
     }
 
     triggerChange();
   }
 
   function getSnapshot() {
-    return globalStore[itemKey].externals.data as TData;
+    return getEntryExternals<TData>(itemKey);
   }
 
-  globalStore[itemKey] = initEntry(triggerChange);
-  globalStore[itemKey].externals.data = data;
+  initEntry(itemKey, triggerChange);
 
   return { subscribe, getSnapshot, setState };
 }

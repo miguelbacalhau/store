@@ -1,6 +1,12 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
 import { createList, CreateListArgs } from './createList';
+import {
+  getEntryExternals,
+  getEntryInternals,
+  setEntryFetched,
+} from './globalStore';
+import { getItemKey } from './keys';
 
 type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
@@ -19,21 +25,34 @@ export function createListHook<TData, TId, TArgs>({
       listStore.getSnapshot,
     );
 
+    const itemsData = list.data?.map((id) => {
+      const itemKey = getItemKey(key, id);
+      const itemExternal = getEntryExternals<TData>(itemKey);
+
+      return itemExternal.data;
+    });
+
+    const listWithData = { ...list, data: itemsData || null };
+
     useEffect(() => {
       async function init() {
-        if (!list) {
+        const listInternals = getEntryInternals(key);
+
+        if (listInternals && !listInternals.fetched && !list.data) {
           listStore.setState({ isLoading: true });
 
           const data = await resolver(args);
 
           listStore.setState({ isLoading: false, data });
+          setEntryFetched(key, true);
         }
       }
 
       init();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return list;
+    return listWithData;
   }
 
   return useList;

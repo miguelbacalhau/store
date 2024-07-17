@@ -1,41 +1,63 @@
 import './App.css';
 
-import { createItem } from './store/createItem';
-import { createListHook } from './store/useList';
+import { useState } from 'react';
+
+import { createItemHook } from './store/createItemHook';
+import { createListHook } from './store/createListHook';
 
 const key = 'person';
 
-const item = createItem({
+const useItem = createItemHook({
   key,
   getId: (data) => data.id,
-  resolver: () => ({ id: 1, name: 'Mike' }),
+  resolver: (args: { id: number }) => {
+    console.log('fetch item');
+
+    return Promise.resolve({ id: args.id, name: 'Mike' });
+  },
 });
 
 const useList = createListHook({
   key,
   getId: (data) => data.id,
-  resolver: (name: string) =>
-    Promise.resolve([
+  resolver: (name: string) => {
+    console.log('fetch list');
+
+    return Promise.resolve([
       { id: 1, name: 'Mike' },
       { id: 2, name: 'Maria' },
-    ]),
+    ]);
+  },
 });
 
 function App() {
-  const names = useList('bufa');
+  const [showPerson, setShowPerson] = useState(false);
+  const persons = useList('bufa');
 
   return (
     <>
-      <div className="card">{names?.map((name) => <p>{name.name}</p>)}</div>
+      <div className="card">
+        {persons.data?.map((person) => <p key={person?.id}>{person?.name}</p>)}
+      </div>
+      <button onClick={() => setShowPerson(true)}> Show Person </button>
+      {showPerson && <Person />}
+    </>
+  );
+}
+
+function Person() {
+  const person = useItem({ id: 1 });
+
+  return (
+    <div>
+      <div className="card">{person.data?.name}</div>
 
       <button
-        onClick={() => {
-          item.setState({ id: 1, name: 'Ze' });
-        }}
+        onClick={() => person.mutate({ name: `Person ${Math.random()}` })}
       >
-        change
+        Change Name
       </button>
-    </>
+    </div>
   );
 }
 
