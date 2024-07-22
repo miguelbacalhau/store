@@ -6,7 +6,7 @@ import {
   StoreEntry,
 } from './globalStore';
 import { getItemKey, getListKey } from './keys';
-import { addListener, removeListener, triggerListener } from './listener';
+import { addListener, removeListener, triggerListeners } from './listener';
 
 export type CreateItemArgs<TData, TId, TArgs> = {
   key: string;
@@ -32,7 +32,7 @@ export function createItem<TData, TId, TArgs>({
   }
 
   function triggerChange() {
-    triggerListener(itemKey);
+    triggerListeners(itemKey);
   }
 
   function setState(state: Partial<StoreEntry['externals']>) {
@@ -41,10 +41,12 @@ export function createItem<TData, TId, TArgs>({
     const listInternals = getEntryInternals(listKey);
     const listExternals = getEntryExternals<TId[]>(listKey);
 
-    const isItemInList = listExternals.data?.includes(id);
+    if (listExternals) {
+      const isItemInList = listExternals.data?.includes(id);
 
-    if (listInternals && isItemInList) {
-      listInternals.forceChange();
+      if (listInternals && isItemInList) {
+        listInternals.forceChange();
+      }
     }
 
     triggerChange();

@@ -25,11 +25,11 @@ export function createListHook<TData, TId, TArgs>({
       listStore.getSnapshot,
     );
 
-    const itemsData = list.data?.map((id) => {
+    const itemsData = list?.data?.map((id) => {
       const itemKey = getItemKey(key, id);
       const itemExternal = getEntryExternals<TData>(itemKey);
 
-      return itemExternal.data;
+      return itemExternal?.data;
     });
 
     const listWithData = { ...list, data: itemsData || null };
@@ -38,7 +38,7 @@ export function createListHook<TData, TId, TArgs>({
       async function init() {
         const listInternals = getEntryInternals(key);
 
-        if (listInternals && !listInternals.fetched && !list.data) {
+        if (listInternals && !listInternals.fetched && !list?.data) {
           listStore.setState({ isLoading: true });
 
           const data = await resolver(args);

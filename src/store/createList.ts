@@ -5,7 +5,7 @@ import {
   StoreEntry,
 } from './globalStore';
 import { getItemKey } from './keys';
-import { addListener, removeListener, triggerListener } from './listener';
+import { addListener, removeListener, triggerListeners } from './listener';
 
 export type CreateListArgs<TData, TId> = {
   key: string;
@@ -17,12 +17,12 @@ export function createList<TData, TId>({
   getId,
 }: CreateListArgs<TData, TId>) {
   function triggerChange() {
-    triggerListener(key);
+    triggerListeners(key);
   }
 
   function forceChange() {
     const listExternals = getEntryExternals<TId[]>(key);
-    const ids = listExternals.data;
+    const ids = listExternals?.data;
 
     setEntryExternals(key, {
       ...listExternals,

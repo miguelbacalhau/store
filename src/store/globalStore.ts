@@ -9,51 +9,68 @@ export type StoreEntry<TData = unknown> = {
   };
 };
 
-export const globalStore: Record<string, StoreEntry> = {};
+export function createStore() {
+  const store: Record<string, StoreEntry> = {};
 
-export function initEntry(key: string, forceChange: () => void) {
-  const entry = globalStore[key];
+  function initEntry(key: string, forceChange: () => void) {
+    const entry = store[key];
 
-  if (!entry) {
-    globalStore[key] = {
-      externals: { data: null, isLoading: false },
-      internals: { forceChange, fetched: false },
-    };
-  } else {
-    // in case the entry already has been initialized we guarantee
-    // that the trigger change callback is not a noop
-    globalStore[key].internals.forceChange = forceChange;
-  }
-}
-
-export function setEntryExternals(
-  key: string,
-  newExternals: Partial<StoreEntry['externals']>,
-) {
-  const externals = globalStore[key].externals;
-
-  globalStore[key].externals = { ...externals, ...newExternals };
-}
-
-export function getEntryExternals<TData>(key: string) {
-  const externals = globalStore[key]
-    .externals as StoreEntry<TData>['externals'];
-
-  return externals;
-}
-
-// Internals data might be fetched for entries that have not yet been
-// initialized so the return data might be undefined
-export function getEntryInternals(
-  key: string,
-): StoreEntry['internals'] | undefined {
-  return globalStore[key] && globalStore[key].internals;
-}
-
-export function setEntryFetched(key: string, value: boolean) {
-  if (!globalStore[key]) {
-    return;
+    if (!entry) {
+      store[key] = {
+        externals: { data: null, isLoading: false },
+        internals: { forceChange, fetched: false },
+      };
+    } else {
+      // in case the entry already has been initialized we guarantee
+      // that the force change callback is not a noop
+      store[key].internals.forceChange = forceChange;
+    }
   }
 
-  globalStore[key].internals.fetched = value;
+  function setEntryExternals(
+    key: string,
+    newExternals: Partial<StoreEntry['externals']>,
+  ) {
+    const externals = store[key].externals;
+
+    store[key].externals = { ...externals, ...newExternals };
+  }
+
+  function getEntryExternals<TData>(key: string) {
+    const externals = store[key] && store[key].externals;
+
+    return externals as StoreEntry<TData>['externals'] | undefined;
+  }
+
+  // Internals data might be fetched for entries that have not yet been
+  // initialized so the return data might be undefined
+  function getEntryInternals(key: string): StoreEntry['internals'] | undefined {
+    return store[key] && store[key].internals;
+  }
+
+  function setEntryFetched(key: string, value: boolean) {
+    if (!store[key]) {
+      return;
+    }
+
+    store[key].internals.fetched = value;
+  }
+
+  return {
+    store,
+    initEntry,
+    getEntryExternals,
+    setEntryExternals,
+    getEntryInternals,
+    setEntryFetched,
+  };
 }
+
+export const {
+  store: globalStore,
+  initEntry,
+  getEntryExternals,
+  getEntryInternals,
+  setEntryExternals,
+  setEntryFetched,
+} = createStore();

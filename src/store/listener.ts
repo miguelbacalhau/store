@@ -12,6 +12,6 @@ export function removeListener(key: string, listener: () => void) {
   listenerMap[key] = listenerMap[key]?.filter((l) => l !== listener);
 }
 
-export function triggerListener(key: string) {
+export function triggerListeners(key: string) {
   listenerMap[key]?.forEach((listener) => listener());
 }
