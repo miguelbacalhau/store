@@ -5,14 +5,12 @@ import {
   StoreEntry,
 } from './globalStore';
 import { getItemKey } from './keys';
-import { createListener } from './listener';
+import { addListener, removeListener, triggerListener } from './listener';
 
 export type CreateListArgs<TData, TId> = {
   key: string;
   getId: (data: TData) => TId;
 };
-
-const { addListener, removeListener, triggerListener } = createListener();
 
 export function createList<TData, TId>({
   key,

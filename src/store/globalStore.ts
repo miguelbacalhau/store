@@ -47,7 +47,7 @@ export function getEntryExternals<TData>(key: string) {
 export function getEntryInternals(
   key: string,
 ): StoreEntry['internals'] | undefined {
-  return globalStore[key].internals;
+  return globalStore[key] && globalStore[key].internals;
 }
 
 export function setEntryFetched(key: string, value: boolean) {
