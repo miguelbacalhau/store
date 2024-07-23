@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-import { createItemHook } from './store/createItemHook';
-import { createListHook } from './store/createListHook';
-import { createMutation } from './store/createMutation';
+import { createMutation } from './core/createMutation';
 import { DevToolsProvider } from './devTools/DevToolsProvider';
+import { createItemHook } from './hooks/createItemHook';
+import { createListHook } from './hooks/createListHook';
 
 const key = 'person';
 

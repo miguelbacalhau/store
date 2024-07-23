@@ -1,11 +1,15 @@
+import { buildItemKey } from '../factories/keys';
+import { StoreEntry } from '../factories/store';
+import {
+  addListener,
+  removeListener,
+  triggerListeners,
+} from '../globals/globalListeners';
 import {
   getEntryExternals,
   initEntry,
   setEntryExternals,
-  StoreEntry,
-} from './globalStore';
-import { getItemKey } from './keys';
-import { addListener, removeListener, triggerListeners } from './listener';
+} from '../globals/globalStore';
 
 export type CreateListArgs<TData, TId> = {
   key: string;
@@ -43,7 +47,7 @@ export function createList<TData, TId>({
   function setState(state: Partial<StoreEntry<TData[]>['externals']>) {
     const dataIds = state?.data?.map((item) => {
       const id = getId(item);
-      const itemKey = getItemKey(key, id);
+      const itemKey = buildItemKey(key, id);
 
       initEntry(itemKey, () => {});
       setEntryExternals(itemKey, { data: item });

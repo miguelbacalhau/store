@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
-import { createItem } from '../../src/store/createItem';
+import { createItem } from '../../src/core/createItem';
 import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
 
 const key = 'Post';

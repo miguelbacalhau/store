@@ -31,6 +31,10 @@ export function createStore() {
     key: string,
     newExternals: Partial<StoreEntry['externals']>,
   ) {
+    if (!store[key]) {
+      return;
+    }
+
     const externals = store[key].externals;
 
     store[key].externals = { ...externals, ...newExternals };
@@ -65,12 +69,3 @@ export function createStore() {
     setEntryFetched,
   };
 }
-
-export const {
-  store: globalStore,
-  initEntry,
-  getEntryExternals,
-  getEntryInternals,
-  setEntryExternals,
-  setEntryFetched,
-} = createStore();

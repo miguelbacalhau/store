@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { createStore } from '../../src/store/globalStore';
+import { createStore } from '../../src/factories/store';
 import {
   forceChangeFixture,
   initialEntryFixture,

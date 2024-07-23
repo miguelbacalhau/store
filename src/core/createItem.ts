@@ -1,12 +1,16 @@
+import { buildItemKey, buildListKey } from '../factories/keys';
+import { StoreEntry } from '../factories/store';
+import {
+  addListener,
+  removeListener,
+  triggerListeners,
+} from '../globals/globalListeners';
 import {
   getEntryExternals,
   getEntryInternals,
   initEntry,
   setEntryExternals,
-  StoreEntry,
-} from './globalStore';
-import { getItemKey, getListKey } from './keys';
-import { addListener, removeListener, triggerListeners } from './listener';
+} from '../globals/globalStore';
 
 export type CreateItemArgs<TData, TId, TArgs> = {
   key: string;
@@ -20,8 +24,8 @@ export function createItem<TData, TId, TArgs>({
   args,
 }: CreateItemArgs<TData, TId, TArgs>) {
   const id = getId(args);
-  const itemKey = getItemKey(key, id);
-  const listKey = getListKey(key);
+  const itemKey = buildItemKey(key, id);
+  const listKey = buildListKey(key);
 
   function subscribe(listener: () => void) {
     addListener(itemKey, listener);

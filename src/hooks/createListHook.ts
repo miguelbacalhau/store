@@ -1,12 +1,12 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
-import { createList, CreateListArgs } from './createList';
+import { createList, CreateListArgs } from '../core/createList';
+import { buildItemKey } from '../factories/keys';
 import {
   getEntryExternals,
   getEntryInternals,
   setEntryFetched,
-} from './globalStore';
-import { getItemKey } from './keys';
+} from '../globals/globalStore';
 
 type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
@@ -17,16 +17,13 @@ export function createListHook<TData, TId, TArgs>({
   getId,
   resolver,
 }: UseListArgs<TData, TId, TArgs>) {
-  const listStore = createList({ key, getId });
+  const { subscribe, getSnapshot, setState } = createList({ key, getId });
 
   function useList(args: TArgs) {
-    const list = useSyncExternalStore(
-      listStore.subscribe,
-      listStore.getSnapshot,
-    );
+    const list = useSyncExternalStore(subscribe, getSnapshot);
 
     const itemsData = list?.data?.map((id) => {
-      const itemKey = getItemKey(key, id);
+      const itemKey = buildItemKey(key, id);
       const itemExternal = getEntryExternals<TData>(itemKey);
 
       return itemExternal?.data;
@@ -39,11 +36,11 @@ export function createListHook<TData, TId, TArgs>({
         const listInternals = getEntryInternals(key);
 
         if (listInternals && !listInternals.fetched && !list?.data) {
-          listStore.setState({ isLoading: true });
+          setState({ isLoading: true });
 
           const data = await resolver(args);
 
-          listStore.setState({ isLoading: false, data });
+          setState({ isLoading: false, data });
           setEntryFetched(key, true);
         }
       }

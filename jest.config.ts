@@ -22,7 +22,13 @@ const config: Config = {
   collectCoverage: true,
 
   // From which sources should the coverage be collected from
-  collectCoverageFrom: ['src/**/*.{ts,tsx}'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/devTools/**/*.{ts,tsx}',
+    '!src/App.tsx',
+    '!src/main.tsx',
+    '!src/vite-env.d.ts',
+  ],
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   // collectCoverageFrom: undefined,

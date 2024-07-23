@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
-import { createList } from '../../src/store/createList';
+import { createList } from '../../src/core/createList';
 import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
 
 const key = 'Page';
