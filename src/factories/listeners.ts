@@ -19,3 +19,5 @@ export function createListeners() {
 
   return { addListener, removeListener, triggerListeners };
 }
+
+export type Listeners = ReturnType<typeof createListeners>;

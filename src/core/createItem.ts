@@ -1,28 +1,18 @@
 import { buildItemKey, buildListKey } from '../factories/keys';
-import { StoreEntry } from '../factories/store';
-import {
-  addListener,
-  removeListener,
-  triggerListeners,
-} from '../globals/globalListeners';
-import {
-  getEntryExternals,
-  getEntryInternals,
-  initEntry,
-  setEntryExternals,
-} from '../globals/globalStore';
+import { Listeners } from '../factories/listeners';
+import { Store, StoreEntry } from '../factories/store';
 
-export type CreateItemArgs<TData, TId, TArgs> = {
+export type CreateItemConfig<TData, TId, TArgs> = {
   key: string;
   getId: (args: TArgs, data?: TData) => TId;
   args: TArgs;
 };
 
-export function createItem<TData, TId, TArgs>({
-  key,
-  getId,
-  args,
-}: CreateItemArgs<TData, TId, TArgs>) {
+export function createItem<TData, TId, TArgs>(
+  { getEntryExternals, getEntryInternals, initEntry, setEntryExternals }: Store,
+  { addListener, removeListener, triggerListeners }: Listeners,
+  { key, getId, args }: CreateItemConfig<TData, TId, TArgs>,
+) {
   const id = getId(args);
   const itemKey = buildItemKey(key, id);
   const listKey = buildListKey(key);

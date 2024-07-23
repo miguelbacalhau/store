@@ -3,6 +3,8 @@ import { describe, expect, test } from '@jest/globals';
 import { createItem } from '../../src/core/createItem';
 import { createList } from '../../src/core/createList';
 import { createMutation } from '../../src/core/createMutation';
+import { createListeners } from '../../src/factories/listeners';
+import { createStore } from '../../src/factories/store';
 import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
 
 const key = 'Book';
@@ -12,7 +14,10 @@ const list = createList({
   getId: (data: { id: number; title: string }) => data.id,
 });
 
-const item = createItem({
+const store = createStore();
+const listeners = createListeners();
+
+const item = createItem(store, listeners, {
   key,
   args: { id: 1 },
   getId: (data) => data.id,
@@ -28,7 +33,7 @@ list.setState({ data: bookList });
 item.setState({ data: book1 });
 
 describe('createMutation', () => {
-  test('list data is initially empty', async () => {
+  test('create operation mutation add a new item to the list', async () => {
     const book4 = { id: 4, title: 'Maps of Europe' };
 
     const mutation = createMutation({
@@ -57,7 +62,7 @@ describe('createMutation', () => {
       data: [...bookIds, book4.id],
     });
 
-    const item4 = createItem({
+    const item4 = createItem(store, listeners, {
       key,
       args: { id: 4 },
       getId: (data) => data.id,

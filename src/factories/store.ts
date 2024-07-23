@@ -69,3 +69,5 @@ export function createStore() {
     setEntryFetched,
   };
 }
+
+export type Store = ReturnType<typeof createStore>;

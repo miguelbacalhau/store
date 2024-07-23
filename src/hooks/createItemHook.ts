@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
-import { createItem, CreateItemArgs } from '../core/createItem';
+import { createItem, CreateItemConfig } from '../core/createItem';
 import { buildItemKey } from '../factories/keys';
 import { getEntryInternals, setEntryFetched } from '../globals/globalStore';
+import { useStore } from './useStore';
 
 type UseItemArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData>;
-} & Omit<CreateItemArgs<TData, TId, TArgs>, 'args'>;
+} & Omit<CreateItemConfig<TData, TId, TArgs>, 'args'>;
 
 export function createItemHook<TData, TId, TArgs>({
   key,
@@ -14,9 +15,10 @@ export function createItemHook<TData, TId, TArgs>({
   resolver,
 }: UseItemArgs<TData, TId, TArgs>) {
   function useItem(args: TArgs) {
+    const { store, listeners } = useStore();
     const { subscribe, getSnapshot, setState } = useMemo(
-      () => createItem({ key, getId, args }),
-      [args],
+      () => createItem(store, listeners, { key, getId, args }),
+      [args, store, listeners],
     );
 
     const item = useSyncExternalStore(subscribe, getSnapshot);
