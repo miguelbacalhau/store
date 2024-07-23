@@ -1,6 +1,6 @@
 import { Accordion } from '@chakra-ui/react';
 
-import { globalStore } from '../store/globalStore';
+import { globalStore } from '../globals/globalStore';
 import { StoreEntry } from './StoreEntry';
 
 export function StoreEntryList() {

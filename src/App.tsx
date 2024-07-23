@@ -94,8 +94,8 @@ function Person() {
 
   return (
     <div>
-      {person1.isLoading && <p>Loading...</p>}
-      <div className="card">{person1.data?.name}</div>
+      {person1?.isLoading && <p>Loading...</p>}
+      <div className="card">{person1?.data?.name}</div>
       <button
         onClick={() => updatePerson({ id: 1, name: `Person ${Math.random()}` })}
       >
@@ -103,8 +103,8 @@ function Person() {
       </button>
       <button onClick={() => deletePerson({ id: 1 })}>Delete</button>
 
-      {person2.isLoading && <p>Loading...</p>}
-      <div className="card">{person2.data?.name}</div>
+      {person2?.isLoading && <p>Loading...</p>}
+      <div className="card">{person2?.data?.name}</div>
       <button
         onClick={() => updatePerson({ id: 3, name: `Person ${Math.random()}` })}
       >

@@ -1,5 +1,5 @@
-import { getEntryExternals } from '../store/globalStore';
-import { addListener, removeListener } from '../store/listener';
+import { addListener, removeListener } from '../globals/globalListeners';
+import { getEntryExternals } from '../globals/globalStore';
 
 export function createStore(key: string) {
   function subscribe(listener: () => void) {
