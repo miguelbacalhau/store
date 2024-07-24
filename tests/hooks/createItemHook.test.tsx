@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 
 import { describe, expect, jest, test } from '@jest/globals';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import { createItem } from '../../src/core/createItem';
@@ -13,6 +13,10 @@ import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
 
 const renderTracker = jest.fn();
 const key = 'Fish';
+
+// the component will render once initial and twice more, to set
+// the isLoading state and after to set the data state
+const BASE_RENDERS = 3;
 
 const useFish = createItemHook({
   key,
@@ -48,9 +52,11 @@ describe('createItemHook', () => {
   test('the created hook should only trigger a render initially', async () => {
     const { Component } = createComponent();
 
-    render(<Component />);
+    await act(async () => {
+      render(<Component />);
+    });
 
-    expect(renderTracker).toHaveBeenCalledTimes(1);
+    expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS);
   });
 
   test('the created should trigger another render when the store changes', async () => {
@@ -62,12 +68,19 @@ describe('createItemHook', () => {
       args: { id: 1 },
     });
 
-    render(<Component />);
+    await act(async () => {
+      render(<Component />);
+    });
 
-    expect(renderTracker).toHaveBeenCalledTimes(1);
+    expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS);
 
-    setState({ ...initialEntryExternalFixture, data: { id: 1, name: 'Jane' } });
+    await act(async () => {
+      setState({
+        ...initialEntryExternalFixture,
+        data: { id: 1, name: 'Jane' },
+      });
+    });
 
-    expect(renderTracker).toHaveBeenCalledTimes(2);
+    expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS + 1);
   });
 });

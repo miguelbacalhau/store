@@ -1,11 +1,16 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
 import { createList } from '../../src/core/createList';
+import { createListeners } from '../../src/factories/listeners';
+import { createStore } from '../../src/factories/store';
 import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
 
 const key = 'Page';
 
-const { getSnapshot, setState, subscribe } = createList({
+const store = createStore();
+const listeners = createListeners();
+
+const { getSnapshot, setState, subscribe } = createList(store, listeners, {
   key,
   getId: (data: { id: number; title: string }) => data.id,
 });

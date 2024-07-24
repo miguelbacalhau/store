@@ -1,10 +1,5 @@
 import { buildItemKey, buildListKey } from '../factories/keys';
-import {
-  getEntryExternals,
-  getEntryInternals,
-  initEntry,
-  setEntryExternals,
-} from '../globals/globalStore';
+import { Store } from '../factories/store';
 
 type CreateMutationArgs<TData, TId, TArgs> =
   | CreateOperationArgs<TData, TId, TArgs>
@@ -32,23 +27,21 @@ type DeleteUpdateArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData>;
 };
 
-export function createMutation<TData, TId, TArgs>({
-  key,
-  getId,
-  operation,
-  resolver,
-}: CreateMutationArgs<TData, TId, TArgs>) {
+export function createMutation<TData, TId, TArgs>(
+  store: Store,
+  { key, getId, operation, resolver }: CreateMutationArgs<TData, TId, TArgs>,
+) {
   async function mutation(args: TArgs) {
     if (operation === 'create') {
-      return createOperation(key, getId, () => resolver(args));
+      return createOperation(store, key, getId, () => resolver(args));
     }
 
     if (operation === 'update') {
-      return updateOperation(key, getId, args, resolver);
+      return updateOperation(store, key, getId, args, resolver);
     }
 
     if (operation === 'delete') {
-      return deleteOperation(key, getId, args, resolver);
+      return deleteOperation(store, key, getId, args, resolver);
     }
   }
 
@@ -56,6 +49,7 @@ export function createMutation<TData, TId, TArgs>({
 }
 
 async function createOperation<TData, TId>(
+  { getEntryExternals, getEntryInternals, initEntry, setEntryExternals }: Store,
   key: string,
   getId: (data: TData) => TId,
   resolver: () => Promise<TData>,
@@ -84,6 +78,7 @@ async function createOperation<TData, TId>(
 }
 
 async function updateOperation<TData, TId, TArgs>(
+  { setEntryExternals }: Store,
   key: string,
   getId: (data: TArgs) => TId,
   args: TArgs,
@@ -98,6 +93,7 @@ async function updateOperation<TData, TId, TArgs>(
 }
 
 async function deleteOperation<TData, TId, TArgs>(
+  { getEntryExternals, getEntryInternals, setEntryExternals }: Store,
   key: string,
   getId: (data: TArgs) => TId,
   args: TArgs,

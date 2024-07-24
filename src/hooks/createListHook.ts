@@ -1,30 +1,34 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
-import { createList, CreateListArgs } from '../core/createList';
+import { createList, CreateListConfig } from '../core/createList';
 import { buildItemKey } from '../factories/keys';
-import {
-  getEntryExternals,
-  getEntryInternals,
-  setEntryFetched,
-} from '../globals/globalStore';
+import { useStore } from './useStore';
 
 type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
-} & CreateListArgs<TData, TId>;
+} & CreateListConfig<TData, TId>;
 
 export function createListHook<TData, TId, TArgs>({
   key,
   getId,
   resolver,
 }: UseListArgs<TData, TId, TArgs>) {
-  const { subscribe, getSnapshot, setState } = createList({ key, getId });
-
   function useList(args: TArgs) {
+    const { store, listeners } = useStore();
+    const { subscribe, getSnapshot, setState } = useMemo(
+      () =>
+        createList(store, listeners, {
+          key,
+          getId,
+        }),
+      [listeners, store],
+    );
+
     const list = useSyncExternalStore(subscribe, getSnapshot);
 
     const itemsData = list?.data?.map((id) => {
       const itemKey = buildItemKey(key, id);
-      const itemExternal = getEntryExternals<TData>(itemKey);
+      const itemExternal = store.getEntryExternals<TData>(itemKey);
 
       return itemExternal?.data;
     });
@@ -33,7 +37,7 @@ export function createListHook<TData, TId, TArgs>({
 
     useEffect(() => {
       async function init() {
-        const listInternals = getEntryInternals(key);
+        const listInternals = store.getEntryInternals(key);
 
         if (listInternals && !listInternals.fetched && !list?.data) {
           setState({ isLoading: true });
@@ -41,7 +45,7 @@ export function createListHook<TData, TId, TArgs>({
           const data = await resolver(args);
 
           setState({ isLoading: false, data });
-          setEntryFetched(key, true);
+          store.setEntryFetched(key, true);
         }
       }
 

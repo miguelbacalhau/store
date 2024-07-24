@@ -2,7 +2,6 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
 import { createItem, CreateItemConfig } from '../core/createItem';
 import { buildItemKey } from '../factories/keys';
-import { getEntryInternals, setEntryFetched } from '../globals/globalStore';
 import { useStore } from './useStore';
 
 type UseItemArgs<TData, TId, TArgs> = {
@@ -27,7 +26,7 @@ export function createItemHook<TData, TId, TArgs>({
       async function init() {
         const id = getId(args);
         const itemKey = buildItemKey(key, id);
-        const itemInternals = getEntryInternals(itemKey);
+        const itemInternals = store.getEntryInternals(itemKey);
 
         if (itemInternals && !itemInternals.fetched && !item?.data) {
           setState({ isLoading: true });
@@ -35,7 +34,7 @@ export function createItemHook<TData, TId, TArgs>({
           const data = await resolver(args);
 
           setState({ isLoading: false, data });
-          setEntryFetched(itemKey, true);
+          store.setEntryFetched(itemKey, true);
         }
       }
 
