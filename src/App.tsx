@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-import { createMutation } from './core/createMutation';
 import { DevToolsProvider } from './devTools/DevToolsProvider';
 import { createItemHook } from './hooks/createItemHook';
 import { createListHook } from './hooks/createListHook';
+import { createMutationHook } from './hooks/createMutationHook';
 
 const key = 'person';
 
@@ -34,7 +34,7 @@ const useList = createListHook({
   },
 });
 
-const createPerson = createMutation({
+const useCreatePerson = createMutationHook({
   key,
   getId: (data) => data.id,
   operation: 'create',
@@ -43,7 +43,7 @@ const createPerson = createMutation({
   },
 });
 
-const updatePerson = createMutation({
+const useUpdatePerson = createMutationHook({
   key,
   getId: (data) => data.id,
   operation: 'update',
@@ -52,7 +52,7 @@ const updatePerson = createMutation({
   },
 });
 
-const deletePerson = createMutation({
+const useDeletePerson = createMutationHook({
   key,
   getId: (data) => data.id,
   operation: 'delete',
@@ -63,27 +63,26 @@ const deletePerson = createMutation({
 
 function App() {
   const [showPerson, setShowPerson] = useState(false);
+
+  return (
+    <>
+      <List />
+      <button onClick={() => setShowPerson(true)}> Show Person </button>
+      {showPerson && <Person />}
+      <Buttons />
+    </>
+  );
+}
+
+function List() {
   const persons = useList('bufa');
 
   return (
     <>
-      <button
-        onClick={() =>
-          createPerson({
-            id: Math.floor(Math.random() * 1000),
-            name: `Person ${Math.random()}`,
-          })
-        }
-      >
-        Create
-      </button>
       {persons.isLoading && <p>Loading...</p>}
       <div className="card">
         {persons.data?.map((person) => <p key={person?.id}>{person?.name}</p>)}
       </div>
-      <button onClick={() => setShowPerson(true)}> Show Person </button>
-      {showPerson && <Person />}
-      <DevToolsProvider />
     </>
   );
 }
@@ -96,6 +95,30 @@ function Person() {
     <div>
       {person1?.isLoading && <p>Loading...</p>}
       <div className="card">{person1?.data?.name}</div>
+
+      {person2?.isLoading && <p>Loading...</p>}
+      <div className="card">{person2?.data?.name}</div>
+    </div>
+  );
+}
+
+function Buttons() {
+  const { mutation: createPerson } = useCreatePerson();
+  const { mutation: updatePerson } = useUpdatePerson();
+  const { mutation: deletePerson } = useDeletePerson();
+
+  return (
+    <div>
+      <button
+        onClick={() =>
+          createPerson({
+            id: Math.floor(Math.random() * 1000),
+            name: `Person ${Math.random()}`,
+          })
+        }
+      >
+        Create
+      </button>
       <button
         onClick={() => updatePerson({ id: 1, name: `Person ${Math.random()}` })}
       >
@@ -103,8 +126,6 @@ function Person() {
       </button>
       <button onClick={() => deletePerson({ id: 1 })}>Delete</button>
 
-      {person2?.isLoading && <p>Loading...</p>}
-      <div className="card">{person2?.data?.name}</div>
       <button
         onClick={() => updatePerson({ id: 3, name: `Person ${Math.random()}` })}
       >
