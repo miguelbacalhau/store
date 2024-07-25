@@ -77,10 +77,33 @@ describe('createItemHook', () => {
     await act(async () => {
       setState({
         ...initialEntryExternalFixture,
-        data: { id: 1, name: 'Jane' },
+        data: { id: 1, name: 'Sardine' },
       });
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS + 1);
+  });
+
+  test('the created hook should not trigger re-renders if there is already data in the store', async () => {
+    const { Component, store, listeners } = createComponent();
+
+    const { setState } = createItem(store, listeners, {
+      key,
+      getId: (data) => data.id,
+      args: { id: 1 },
+    });
+
+    setState({
+      ...initialEntryExternalFixture,
+      data: { id: 1, name: 'Sardine' },
+    });
+
+    expect(renderTracker).not.toHaveBeenCalled();
+
+    await act(async () => {
+      render(<Component />);
+    });
+
+    expect(renderTracker).toHaveBeenCalledTimes(1);
   });
 });

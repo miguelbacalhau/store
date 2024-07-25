@@ -1,9 +1,10 @@
+import { defaultEntryExternals } from '../../src/factories/store';
+
 export const forceChangeFixture = () => {};
 
-export const initialEntryExternalFixture = { data: null, isLoading: false };
+export const initialEntryExternalFixture = defaultEntryExternals;
 export const initialEntryInternalFixture = {
   forceChange: forceChangeFixture,
-  fetched: false,
 };
 
 export const initialEntryFixture = {

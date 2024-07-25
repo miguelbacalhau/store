@@ -45,7 +45,11 @@ describe('createList', () => {
 
     const snapshot2 = getSnapshot();
 
-    expect(snapshot2).toEqual({ ...data1Ids, ...data2 });
+    expect(snapshot2).toEqual({
+      ...initialEntryExternalFixture,
+      ...data1Ids,
+      ...data2,
+    });
   });
 
   test('subscribe will trigger the listener callback on setState', () => {

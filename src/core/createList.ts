@@ -1,6 +1,6 @@
 import { buildItemKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
-import { Store, StoreEntry } from '../factories/store';
+import { defaultEntryExternals, Store, StoreEntry } from '../factories/store';
 
 export type CreateListConfig<TData, TId> = {
   key: string;
@@ -56,7 +56,13 @@ export function createList<TData, TId>(
   }
 
   function getSnapshot() {
-    return getEntryExternals<TId[]>(key);
+    const externals = getEntryExternals<TId[]>(key);
+
+    if (externals) {
+      return externals;
+    }
+
+    return defaultEntryExternals;
   }
 
   initEntry(key, forceChange);

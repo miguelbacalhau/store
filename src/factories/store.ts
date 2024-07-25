@@ -1,12 +1,18 @@
 export type StoreEntry<TData = unknown> = {
   externals: {
     isLoading: boolean;
+    isFetched: boolean;
     data: null | TData;
   };
   internals: {
-    fetched: boolean;
     forceChange: () => void;
   };
+};
+
+export const defaultEntryExternals: StoreEntry<null>['externals'] = {
+  isLoading: false,
+  isFetched: false,
+  data: null,
 };
 
 export function createStore() {
@@ -17,8 +23,8 @@ export function createStore() {
 
     if (!entry) {
       store[key] = {
-        externals: { data: null, isLoading: false },
-        internals: { forceChange, fetched: false },
+        externals: { data: null, isLoading: false, isFetched: false },
+        internals: { forceChange },
       };
     } else {
       // in case the entry already has been initialized we guarantee
@@ -52,21 +58,12 @@ export function createStore() {
     return store[key] && store[key].internals;
   }
 
-  function setEntryFetched(key: string, value: boolean) {
-    if (!store[key]) {
-      return;
-    }
-
-    store[key].internals.fetched = value;
-  }
-
   return {
     store,
     initEntry,
     getEntryExternals,
     setEntryExternals,
     getEntryInternals,
-    setEntryFetched,
   };
 }
 

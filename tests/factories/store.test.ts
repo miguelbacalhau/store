@@ -3,6 +3,7 @@ import { describe, expect, test } from '@jest/globals';
 import { createStore } from '../../src/factories/store';
 import {
   forceChangeFixture,
+  initialEntryExternalFixture,
   initialEntryFixture,
 } from '../fixtures/globalStoreFixtures';
 
@@ -47,7 +48,7 @@ describe('global store basic functions', () => {
 
     const externals = getEntryExternals(key);
 
-    expect(externals).toEqual(initialEntryFixture.externals);
+    expect(externals).toEqual(initialEntryExternalFixture);
   });
 
   test('setExternal should change the external story entry data', () => {
@@ -55,22 +56,11 @@ describe('global store basic functions', () => {
 
     initEntry(key, forceChangeFixture);
 
-    const newExternals = { data: 1, isLoading: true };
-
-    setEntryExternals(key, newExternals);
-
-    expect(store[key]).toEqual({
-      externals: newExternals,
-      internals: initialEntryFixture.internals,
-    });
-  });
-
-  test('setExternal should change the external story entry data', () => {
-    const { store, initEntry, setEntryExternals } = createStore();
-
-    initEntry(key, forceChangeFixture);
-
-    const newExternals = { data: 1, isLoading: true };
+    const newExternals = {
+      ...initialEntryExternalFixture,
+      data: 1,
+      isLoading: true,
+    };
 
     setEntryExternals(key, newExternals);
 

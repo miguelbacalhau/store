@@ -1,6 +1,6 @@
 import { buildItemKey, buildListKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
-import { Store, StoreEntry } from '../factories/store';
+import { defaultEntryExternals, Store, StoreEntry } from '../factories/store';
 
 export type CreateItemConfig<TData, TId, TArgs> = {
   key: string;
@@ -16,8 +16,6 @@ export function createItem<TData, TId, TArgs>(
   const id = getId(args);
   const itemKey = buildItemKey(key, id);
   const listKey = buildListKey(key);
-
-  const defaultEntry = { isLoading: false, data: null };
 
   function subscribe(listener: () => void) {
     addListener(itemKey, listener);
@@ -55,7 +53,7 @@ export function createItem<TData, TId, TArgs>(
       return externals;
     }
 
-    return defaultEntry;
+    return defaultEntryExternals;
   }
 
   initEntry(itemKey, triggerChange);
