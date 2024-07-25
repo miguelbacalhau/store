@@ -5,7 +5,7 @@ import { createList } from '../../src/core/createList';
 import { createMutation } from '../../src/core/createMutation';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
-import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
+import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
 
 const key = 'Book';
 

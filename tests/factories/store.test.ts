@@ -5,7 +5,7 @@ import {
   forceChangeFixture,
   initialEntryExternalFixture,
   initialEntryFixture,
-} from '../fixtures/globalStoreFixtures';
+} from '../fixtures/storeFixtures';
 
 const key = 'Person';
 

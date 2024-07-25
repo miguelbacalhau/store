@@ -9,7 +9,7 @@ import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
 import { createItemHook } from '../../src/hooks/createItemHook';
 import { StoreProvider } from '../../src/hooks/StoreProvider';
-import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
+import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
 
 const renderTracker = jest.fn();
 const key = 'Fish';

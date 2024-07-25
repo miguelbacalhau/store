@@ -3,7 +3,7 @@ import { describe, expect, jest, test } from '@jest/globals';
 import { createItem } from '../../src/core/createItem';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
-import { initialEntryExternalFixture } from '../fixtures/globalStoreFixtures';
+import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
 
 const key = 'Post';
 const args = { id: 1 };

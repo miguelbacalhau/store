@@ -56,13 +56,7 @@ export function createList<TData, TId>(
   }
 
   function getSnapshot() {
-    const externals = getEntryExternals<TId[]>(key);
-
-    if (externals) {
-      return externals;
-    }
-
-    return defaultEntryExternals;
+    return getEntryExternals<TId[]>(key);
   }
 
   initEntry(key, forceChange);

@@ -47,9 +47,9 @@ export function createStore() {
   }
 
   function getEntryExternals<TData>(key: string) {
-    const externals = store[key] && store[key].externals;
+    const externals = store[key] ? store[key].externals : defaultEntryExternals;
 
-    return externals as StoreEntry<TData>['externals'] | undefined;
+    return externals as StoreEntry<TData>['externals'];
   }
 
   // Internals data might be fetched for entries that have not yet been

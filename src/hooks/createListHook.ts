@@ -30,22 +30,19 @@ export function createListHook<TData, TId, TArgs>({
       const itemKey = buildItemKey(key, id);
       const itemExternal = store.getEntryExternals<TData>(itemKey);
 
-      return itemExternal?.data;
+      return itemExternal.data;
     });
 
     const listWithData = { ...list, data: itemsData || null };
 
     useEffect(() => {
       async function init() {
-        const listInternals = store.getEntryInternals(key);
-
-        if (listInternals && !listInternals.fetched && !list?.data) {
+        if (!list.isFetched && !list.data) {
           setState({ isLoading: true });
 
           const data = await resolver(args);
 
-          setState({ isLoading: false, data });
-          store.setEntryFetched(key, true);
+          setState({ isLoading: false, isFetched: true, data });
         }
       }
 
