@@ -17,6 +17,8 @@ export function createItem<TData, TId, TArgs>(
   const itemKey = buildItemKey(key, id);
   const listKey = buildListKey(key);
 
+  const defaultEntry = { isLoading: false, data: null };
+
   function subscribe(listener: () => void) {
     addListener(itemKey, listener);
 
@@ -47,7 +49,13 @@ export function createItem<TData, TId, TArgs>(
   }
 
   function getSnapshot() {
-    return getEntryExternals<TData>(itemKey);
+    const externals = getEntryExternals<TData>(itemKey);
+
+    if (externals) {
+      return externals;
+    }
+
+    return defaultEntry;
   }
 
   initEntry(itemKey, triggerChange);

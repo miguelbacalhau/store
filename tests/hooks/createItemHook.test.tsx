@@ -59,7 +59,7 @@ describe('createItemHook', () => {
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS);
   });
 
-  test('the created should trigger another render when the store changes', async () => {
+  test('the created hook should trigger another render when the store changes', async () => {
     const { Component, store, listeners } = createComponent();
 
     const { setState } = createItem(store, listeners, {

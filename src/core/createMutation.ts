@@ -1,26 +1,26 @@
 import { buildItemKey, buildListKey } from '../factories/keys';
 import { Store } from '../factories/store';
 
-type CreateMutationArgs<TData, TId, TArgs> =
-  | CreateOperationArgs<TData, TId, TArgs>
-  | UpdateOperationArgs<TData, TId, TArgs>
-  | DeleteUpdateArgs<TData, TId, TArgs>;
+export type CreateMutationConfig<TData, TId, TArgs> =
+  | CreateOperationConfig<TData, TId, TArgs>
+  | UpdateOperationConfig<TData, TId, TArgs>
+  | DeleteUpdateConfig<TData, TId, TArgs>;
 
-type CreateOperationArgs<TData, TId, TArgs> = {
+type CreateOperationConfig<TData, TId, TArgs> = {
   key: string;
   getId: (data: TData) => TId;
   operation: 'create';
   resolver: (args: TArgs) => Promise<TData>;
 };
 
-type UpdateOperationArgs<TData, TId, TArgs> = {
+type UpdateOperationConfig<TData, TId, TArgs> = {
   key: string;
   getId: (data: TArgs) => TId;
   operation: 'update';
   resolver: (args: TArgs) => Promise<TData>;
 };
 
-type DeleteUpdateArgs<TData, TId, TArgs> = {
+type DeleteUpdateConfig<TData, TId, TArgs> = {
   key: string;
   getId: (data: TArgs) => TId;
   operation: 'delete';
@@ -29,7 +29,7 @@ type DeleteUpdateArgs<TData, TId, TArgs> = {
 
 export function createMutation<TData, TId, TArgs>(
   store: Store,
-  { key, getId, operation, resolver }: CreateMutationArgs<TData, TId, TArgs>,
+  { key, getId, operation, resolver }: CreateMutationConfig<TData, TId, TArgs>,
 ) {
   async function mutation(args: TArgs) {
     if (operation === 'create') {
