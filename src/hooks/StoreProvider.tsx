@@ -3,9 +3,12 @@ import { createContext, ReactNode } from 'react';
 import { createListeners, Listeners } from '../factories/listeners';
 import { createStore } from '../factories/store';
 
+const store = createStore();
+const listeners = createListeners();
+
 export const StoreContext = createContext({
-  store: createStore(),
-  listeners: createListeners(),
+  store,
+  listeners,
 });
 
 export function StoreProvider({

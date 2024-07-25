@@ -91,7 +91,6 @@ describe('createMutation', () => {
       key,
       getId: (data) => data.id,
       operation: 'update',
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       resolver: (data: { id: number; title: string }) => Promise.resolve(data),
     });
 
@@ -135,7 +134,6 @@ describe('createMutation', () => {
       key,
       getId: (data) => data.id,
       operation: 'delete',
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       resolver: (data: { id: number }) => Promise.resolve(data),
     });
 

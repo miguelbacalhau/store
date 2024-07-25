@@ -78,7 +78,7 @@ async function createOperation<TData, TId>(
 }
 
 async function updateOperation<TData, TId, TArgs>(
-  { setEntryExternals }: Store,
+  { setEntryExternals, getEntryInternals }: Store,
   key: string,
   getId: (data: TArgs) => TId,
   args: TArgs,
@@ -86,10 +86,16 @@ async function updateOperation<TData, TId, TArgs>(
 ) {
   const itemId = getId(args);
   const itemKey = buildItemKey(key, itemId);
+  const itemInternals = getEntryInternals(itemKey);
+
+  const listKey = buildListKey(key);
+  const listInternals = getEntryInternals(listKey);
 
   const data = await resolver(args);
 
   setEntryExternals(itemKey, { isLoading: false, data });
+  itemInternals?.forceChange();
+  listInternals?.forceChange();
 }
 
 async function deleteOperation<TData, TId, TArgs>(
@@ -101,6 +107,7 @@ async function deleteOperation<TData, TId, TArgs>(
 ) {
   const itemId = getId(args);
   const itemKey = buildItemKey(key, itemId);
+  const itemInternals = getEntryInternals(itemKey);
 
   const listKey = buildListKey(key);
   const listInternals = getEntryInternals(listKey);
@@ -108,6 +115,7 @@ async function deleteOperation<TData, TId, TArgs>(
   await resolver(args);
 
   setEntryExternals(itemKey, { isLoading: false, data: null });
+  itemInternals?.forceChange();
 
   const listExternals = getEntryExternals<TId[]>(listKey);
 

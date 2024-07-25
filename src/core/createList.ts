@@ -1,6 +1,6 @@
 import { buildItemKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
-import { defaultEntryExternals, Store, StoreEntry } from '../factories/store';
+import { Store, StoreEntry } from '../factories/store';
 
 export type CreateListConfig<TData, TId> = {
   key: string;

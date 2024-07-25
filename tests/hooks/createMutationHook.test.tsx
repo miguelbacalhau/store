@@ -58,52 +58,81 @@ const useFishDelete = createMutationHook({
   resolver: (args: { id: number }) => Promise.resolve({ id: args.id }),
 });
 
-function createProvider() {
+function createComponent() {
   const store = createStore();
   const listeners = createListeners();
 
-  function Provider({ children }: { children: ReactNode }) {
+  function List() {
+    const { data: fishes } = useFishes(null);
+
+    return (
+      <>
+        {fishes?.map((fish) => (
+          <h1 data-testid="list" key={fish?.id}>
+            {fish?.name}
+          </h1>
+        ))}
+      </>
+    );
+  }
+
+  function Item() {
+    const { data: fish } = useFish({ id: 1 });
+
+    return (
+      <>
+        <h1 data-testid="item">{fish?.name}</h1>
+      </>
+    );
+  }
+
+  function Buttons() {
+    const { mutation: create } = useFishCreate();
+    const { mutation: update } = useFishUpdate();
+    const { mutation: remove } = useFishDelete();
+    return (
+      <>
+        <button
+          data-testid="create"
+          onClick={() => create({ id: 3, name: updateName })}
+        />
+        <button
+          data-testid="update"
+          onClick={() => update({ id: 1, name: updateName })}
+        />
+        <button data-testid="delete" onClick={() => remove({ id: 1 })} />
+      </>
+    );
+  }
+
+  function Component() {
     return (
       <StoreProvider store={store} listeners={listeners}>
-        {children}
+        <Item />
+        <List />
+        <Buttons />
       </StoreProvider>
     );
   }
 
-  return Provider;
+  return Component;
 }
 
 describe('createMutationHook', () => {
   test('the created create hook should add the item to the list', async () => {
-    const Provider = createProvider();
-
-    function BaseComponent() {
-      const { data: fishes } = useFishes(null);
-      const { mutation } = useFishCreate();
-
-      return (
-        <>
-          {fishes?.map((fish) => <h1 key={fish?.id}>{fish?.name}</h1>)}
-          <button onClick={() => mutation({ id: 3, name: updateName })} />
-        </>
-      );
-    }
+    const Component = createComponent();
 
     await act(async () => {
-      render(
-        <Provider>
-          <BaseComponent />
-        </Provider>,
-      );
+      render(<Component />);
     });
 
-    screen.queryAllByRole('heading').forEach((heading) => {
-      expect(heading).not.toHaveTextContent(updateName);
+    screen.queryAllByTestId('list').forEach((item) => {
+      expect(item).not.toHaveTextContent(updateName);
     });
 
-    await userEvent.click(screen.getByRole('button'));
+    await userEvent.click(screen.getByTestId('create'));
 
-    const list = screen.queryAllByRole('heading');
+    const list = screen.queryAllByTestId('list');
 
     expect(list.length).toBe(3);
 
@@ -117,65 +146,35 @@ describe('createMutationHook', () => {
   });
 
   test('the created update hook should mutate the item state', async () => {
-    const Provider = createProvider();
-
-    function BaseComponent() {
-      const { data: fish } = useFish({ id: 1 });
-      const { mutation } = useFishUpdate();
-
-      return (
-        <>
-          <h1>{fish?.name}</h1>
-          <button onClick={() => mutation({ id: 1, name: updateName })} />
-        </>
-      );
-    }
+    const Component = createComponent();
 
     await act(async () => {
-      render(
-        <Provider>
-          <BaseComponent />
-        </Provider>,
-      );
+      render(<Component />);
     });
 
-    expect(screen.queryByRole('heading')).toHaveTextContent(initialName);
+    expect(screen.queryByTestId('item')).toHaveTextContent(initialName);
 
-    await userEvent.click(screen.getByRole('button'));
+    await userEvent.click(screen.getByTestId('update'));
 
-    expect(screen.queryByRole('heading')).toHaveTextContent(updateName);
+    expect(screen.queryByTestId('item')).toHaveTextContent(updateName);
+
+    const list = screen.queryAllByTestId('list');
+
+    list.forEach((item, index) => {
+      if (index === 0) {
+        expect(item).toHaveTextContent(updateName);
+      }
+    });
   });
 
   test('the created delete hook should mutate the item data and remove it from the list', async () => {
-    const Provider = createProvider();
-
-    function BaseComponent() {
-      const { data: fish } = useFish({ id: 1 });
-      const { data: fishes } = useFishes(null);
-      const { mutation } = useFishDelete();
-
-      return (
-        <>
-          <h1 data-testid="item">{fish?.name}</h1>
-          {fishes?.map((fish) => (
-            <h1 data-testid="list" key={fish?.id}>
-              {fish?.name}
-            </h1>
-          ))}
-          <button onClick={() => mutation({ id: 1 })} />
-        </>
-      );
-    }
+    const Component = createComponent();
 
     await act(async () => {
-      render(
-        <Provider>
-          <BaseComponent />
-        </Provider>,
-      );
+      render(<Component />);
     });
 
-    await userEvent.click(screen.getByRole('button'));
+    await userEvent.click(screen.getByTestId('delete'));
 
     expect(screen.queryByTestId('item')).not.toHaveTextContent(initialName);
 
