@@ -2,17 +2,35 @@ import { buildItemKey, buildListKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
 import { Store, StoreEntry } from '../factories/store';
 
-export type CreateItemConfig<TData, TId, TArgs> = {
+export type Selector<TData, TSelect> = (
+  data: StoreEntry<TData>['externals'],
+) => TSelect;
+
+type CreateItemConfigBase<TData, TId, TArgs> = {
   key: string;
   getId: (args: TArgs, data?: TData) => TId;
   args: TArgs;
+  selector?: undefined;
 };
 
-export function createItem<TData, TId, TArgs>(
+type CreateItemConfigSelector<TData, TId, TArgs, TSelect> = {
+  key: string;
+  getId: (args: TArgs, data?: TData) => TId;
+  args: TArgs;
+  selector: (data: StoreEntry<TData>['externals']) => TSelect;
+};
+
+export type CreateItemConfig<TData, TId, TArgs, TSelect> =
+  | CreateItemConfigBase<TData, TId, TArgs>
+  | CreateItemConfigSelector<TData, TId, TArgs, TSelect>;
+
+export function createItem<TData, TId, TArgs, TSelect>(
   { getEntryExternals, getEntryInternals, initEntry, setEntryExternals }: Store,
   { addListener, removeListener, triggerListeners }: Listeners,
-  { key, getId, args }: CreateItemConfig<TData, TId, TArgs>,
+  config: CreateItemConfig<TData, TId, TArgs, TSelect>,
 ) {
+  const { key, args, getId } = config;
+
   const id = getId(args);
   const itemKey = buildItemKey(key, id);
   const listKey = buildListKey(key);
@@ -47,7 +65,9 @@ export function createItem<TData, TId, TArgs>(
   }
 
   function getSnapshot() {
-    return getEntryExternals<TData>(itemKey);
+    const externals = getEntryExternals<TData>(itemKey);
+
+    return config.selector ? config.selector(externals) : externals;
   }
 
   initEntry(itemKey, triggerChange);

@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 
 import { describe, expect, jest, test } from '@jest/globals';
 import { act, render } from '@testing-library/react';
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { createItem } from '../../src/core/createItem';
 import { createListeners } from '../../src/factories/listeners';
@@ -25,7 +25,7 @@ const useFish = createItemHook({
     Promise.resolve({ id: args.id, name: 'John' }),
 });
 
-function createComponent() {
+function createProvider() {
   const store = createStore();
   const listeners = createListeners();
 
@@ -37,11 +37,32 @@ function createComponent() {
     return <div>This is a component</div>;
   }
 
-  function Component() {
+  function Provider({ children }: { children: ReactNode }) {
     return (
       <StoreProvider store={store} listeners={listeners}>
-        <BaseComponent />
+        {children}
       </StoreProvider>
+    );
+  }
+
+  return { Provider, store, listeners };
+}
+function createComponent() {
+  const { Provider, store, listeners } = createProvider();
+
+  function BaseComponent() {
+    renderTracker();
+
+    useFish({ id: 1 });
+
+    return <div>This is a component</div>;
+  }
+
+  function Component() {
+    return (
+      <Provider>
+        <BaseComponent />
+      </Provider>
     );
   }
 
@@ -105,5 +126,45 @@ describe('createItemHook', () => {
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(1);
+  });
+
+  test('the created hook should not trigger extra re-renders if the selected data does not change', async () => {
+    const { Provider, store, listeners } = createProvider();
+
+    function Component() {
+      renderTracker();
+
+      const fish = useFish({ id: 1 }, (state) => state.data);
+
+      return (
+        <Provider>
+          <div>{fish?.name}</div>
+        </Provider>
+      );
+    }
+
+    expect(renderTracker).not.toHaveBeenCalled();
+
+    await act(async () => {
+      render(
+        <Provider>
+          <Component />
+        </Provider>,
+      );
+    });
+
+    expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS - 1);
+
+    const { setState } = createItem(store, listeners, {
+      key,
+      getId: (data) => data.id,
+      args: { id: 1 },
+    });
+
+    setState({
+      isLoading: true,
+    });
+
+    expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS - 1);
   });
 });

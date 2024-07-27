@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { DevToolsProvider } from './devTools/DevToolsProvider';
 import { createItemHook } from './hooks/createItemHook';
 import { createListHook } from './hooks/createListHook';
 import { createMutationHook } from './hooks/createMutationHook';
@@ -48,6 +47,7 @@ const useUpdatePerson = createMutationHook({
   getId: (data) => data.id,
   operation: 'update',
   resolver: async ({ id, name }: { id: number; name: string }) => {
+    await timeout(2 * 1000);
     return Promise.resolve({ id, name });
   },
 });
@@ -68,7 +68,12 @@ function App() {
     <>
       <List />
       <button onClick={() => setShowPerson(true)}> Show Person </button>
-      {showPerson && <Person />}
+      {showPerson && (
+        <>
+          <Person1 />
+          <Person3 />
+        </>
+      )}
       <Buttons />
     </>
   );
@@ -87,17 +92,23 @@ function List() {
   );
 }
 
-function Person() {
-  const person1 = useItem({ id: 1 });
-  const person2 = useItem({ id: 3 });
+function Person1() {
+  const person = useItem({ id: 1 }, (state) => state.data);
 
+  console.log('Person 1 rendered');
   return (
     <div>
-      {person1?.isLoading && <p>Loading...</p>}
-      <div className="card">{person1?.data?.name}</div>
+      <div className="card">{person?.name}</div>
+    </div>
+  );
+}
+function Person3() {
+  const person = useItem({ id: 3 });
 
-      {person2?.isLoading && <p>Loading...</p>}
-      <div className="card">{person2?.data?.name}</div>
+  console.log('Person 2 rendered');
+  return (
+    <div>
+      <div className="card">{person.data?.name}</div>
     </div>
   );
 }

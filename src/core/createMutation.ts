@@ -91,6 +91,9 @@ async function updateOperation<TData, TId, TArgs>(
   const listKey = buildListKey(key);
   const listInternals = getEntryInternals(listKey);
 
+  setEntryExternals(itemKey, { isLoading: true });
+  itemInternals?.forceChange();
+
   const data = await resolver(args);
 
   setEntryExternals(itemKey, { isLoading: false, data });
@@ -111,6 +114,9 @@ async function deleteOperation<TData, TId, TArgs>(
 
   const listKey = buildListKey(key);
   const listInternals = getEntryInternals(listKey);
+
+  setEntryExternals(itemKey, { isLoading: true });
+  itemInternals?.forceChange();
 
   await resolver(args);
 
