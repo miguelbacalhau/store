@@ -6,6 +6,7 @@ export type StoreEntry<TData = unknown> = {
   };
   internals: {
     forceChange: () => void;
+    inList: string[];
   };
 };
 
@@ -18,19 +19,19 @@ export const defaultEntryExternals: StoreEntry<null>['externals'] = {
 export function createStore() {
   const store: Record<string, StoreEntry> = {};
 
-  function initEntry(key: string, forceChange: () => void) {
-    const entry = store[key];
+  function initEntry<TData>(key: string) {
+    const entry: StoreEntry<TData> = {
+      externals: { data: null, isLoading: false, isFetched: false },
+      internals: { forceChange: () => {}, inList: [] },
+    };
 
-    if (!entry) {
-      store[key] = {
-        externals: { data: null, isLoading: false, isFetched: false },
-        internals: { forceChange },
-      };
-    } else {
-      // in case the entry already has been initialized we guarantee
-      // that the force change callback is not a noop
-      store[key].internals.forceChange = forceChange;
-    }
+    store[key] = entry;
+
+    return entry.internals;
+  }
+
+  function hasEntry(key: string) {
+    return Boolean(store[key]);
   }
 
   function setEntryExternals(
@@ -61,6 +62,7 @@ export function createStore() {
   return {
     store,
     initEntry,
+    hasEntry,
     getEntryExternals,
     setEntryExternals,
     getEntryInternals,

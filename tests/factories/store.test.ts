@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 
 import { createStore } from '../../src/factories/store';
 import {
-  forceChangeFixture,
+  forceChange,
   initialEntryExternalFixture,
   initialEntryFixture,
 } from '../fixtures/storeFixtures';
@@ -19,33 +19,19 @@ describe('global store basic functions', () => {
   test('initialization includes all necessary fields', () => {
     const { store, initEntry } = createStore();
 
-    initEntry(key, forceChangeFixture);
+    const internals = initEntry(key);
+    internals.forceChange = forceChange;
 
     expect(store[key]).toEqual(initialEntryFixture);
-  });
-
-  test('initializing a second time only changes the force change callback', () => {
-    const { store, initEntry } = createStore();
-
-    const newForceChange = () => {};
-
-    initEntry(key, forceChangeFixture);
-    initEntry(key, newForceChange);
-
-    expect(store[key]).toEqual({
-      ...initialEntryFixture,
-      internals: {
-        ...initialEntryFixture.internals,
-        forceChange: newForceChange,
-      },
-    });
   });
 
   test('getExternal should return only the external story entry data', () => {
     const { initEntry, getEntryExternals } = createStore();
 
-    initEntry(key, forceChangeFixture);
+    initEntry(key);
 
+    const internals = initEntry(key);
+    internals.forceChange = forceChange;
     const externals = getEntryExternals(key);
 
     expect(externals).toEqual(initialEntryExternalFixture);
@@ -54,7 +40,8 @@ describe('global store basic functions', () => {
   test('setExternal should change the external story entry data', () => {
     const { store, initEntry, setEntryExternals } = createStore();
 
-    initEntry(key, forceChangeFixture);
+    const internals = initEntry(key);
+    internals.forceChange = forceChange;
 
     const newExternals = {
       ...initialEntryExternalFixture,
@@ -77,7 +64,8 @@ describe('global store basic functions', () => {
 
     expect(beforeInitInternals).toBe(undefined);
 
-    initEntry(key, forceChangeFixture);
+    const internals = initEntry(key);
+    internals.forceChange = forceChange;
 
     const afterInitInternals = getEntryInternals(key);
 

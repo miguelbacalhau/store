@@ -29,14 +29,6 @@ function createProvider() {
   const store = createStore();
   const listeners = createListeners();
 
-  function BaseComponent() {
-    renderTracker();
-
-    useFish({ id: 1 });
-
-    return <div>This is a component</div>;
-  }
-
   function Provider({ children }: { children: ReactNode }) {
     return (
       <StoreProvider store={store} listeners={listeners}>
@@ -116,6 +108,7 @@ describe('createItemHook', () => {
 
     setState({
       ...initialEntryExternalFixture,
+      isFetched: true,
       data: { id: 1, name: 'Sardine' },
     });
 

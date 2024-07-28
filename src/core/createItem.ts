@@ -1,4 +1,4 @@
-import { buildItemKey, buildListKey } from '../factories/keys';
+import { buildItemKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
 import { Store, StoreEntry } from '../factories/store';
 
@@ -25,7 +25,13 @@ export type CreateItemConfig<TData, TId, TArgs, TSelect> =
   | CreateItemConfigSelector<TData, TId, TArgs, TSelect>;
 
 export function createItem<TData, TId, TArgs, TSelect>(
-  { getEntryExternals, getEntryInternals, initEntry, setEntryExternals }: Store,
+  {
+    initEntry,
+    hasEntry,
+    getEntryExternals,
+    getEntryInternals,
+    setEntryExternals,
+  }: Store,
   { addListener, removeListener, triggerListeners }: Listeners,
   config: CreateItemConfig<TData, TId, TArgs, TSelect>,
 ) {
@@ -33,7 +39,6 @@ export function createItem<TData, TId, TArgs, TSelect>(
 
   const id = getId(args);
   const itemKey = buildItemKey(key, id);
-  const listKey = buildListKey(key);
 
   function subscribe(listener: () => void) {
     addListener(itemKey, listener);
@@ -50,16 +55,20 @@ export function createItem<TData, TId, TArgs, TSelect>(
   function setState(state: Partial<StoreEntry['externals']>) {
     setEntryExternals(itemKey, state);
 
-    const listInternals = getEntryInternals(listKey);
-    const listExternals = getEntryExternals<TId[]>(listKey);
+    const itemInternals = getEntryInternals(itemKey);
 
-    if (listExternals) {
-      const isItemInList = listExternals.data?.includes(id);
+    itemInternals?.inList.forEach((listKey) => {
+      const listInternals = getEntryInternals(listKey);
+      const listExternals = getEntryExternals<TId[]>(listKey);
 
-      if (listInternals && isItemInList) {
-        listInternals.forceChange();
+      if (listExternals) {
+        const isItemInList = listExternals.data?.includes(id);
+
+        if (listInternals && isItemInList) {
+          listInternals.forceChange();
+        }
       }
-    }
+    });
 
     triggerChange();
   }
@@ -70,7 +79,10 @@ export function createItem<TData, TId, TArgs, TSelect>(
     return config.selector ? config.selector(externals) : externals;
   }
 
-  initEntry(itemKey, triggerChange);
+  if (!hasEntry(itemKey)) {
+    const itemInternals = initEntry(itemKey);
+    itemInternals.forceChange = triggerChange;
+  }
 
   return { subscribe, getSnapshot, setState };
 }

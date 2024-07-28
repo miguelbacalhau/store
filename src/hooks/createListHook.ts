@@ -6,7 +6,7 @@ import { useStore } from './useStore';
 
 type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
-} & CreateListConfig<TData, TId>;
+} & Omit<CreateListConfig<TData, TId, TArgs>, 'args'>;
 
 export function createListHook<TData, TId, TArgs>({
   key,
@@ -20,13 +20,14 @@ export function createListHook<TData, TId, TArgs>({
         createList(store, listeners, {
           key,
           getId,
+          args,
         }),
-      [listeners, store],
+      [listeners, store, args],
     );
 
     const list = useSyncExternalStore(subscribe, getSnapshot);
 
-    const itemsData = list?.data?.map((id) => {
+    const itemsData = list.data?.map((id) => {
       const itemKey = buildItemKey(key, id);
       const itemExternal = store.getEntryExternals<TData>(itemKey);
 

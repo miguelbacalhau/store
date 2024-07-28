@@ -1,4 +1,4 @@
-import { buildItemKey, buildListKey } from '../factories/keys';
+import { buildItemKey } from '../factories/keys';
 import { Store } from '../factories/store';
 
 export type CreateMutationConfig<TData, TId, TArgs> =
@@ -49,32 +49,24 @@ export function createMutation<TData, TId, TArgs>(
 }
 
 async function createOperation<TData, TId>(
-  { getEntryExternals, getEntryInternals, initEntry, setEntryExternals }: Store,
+  { initEntry, hasEntry, setEntryExternals, getEntryInternals }: Store,
   key: string,
   getId: (data: TData) => TId,
   resolver: () => Promise<TData>,
 ) {
-  const listKey = buildListKey(key);
-  const listInternals = getEntryInternals(listKey);
-
   const data = await resolver();
 
   const itemId = getId(data);
   const itemKey = buildItemKey(key, itemId);
 
-  initEntry(itemKey, () => {});
-  setEntryExternals(itemKey, { isLoading: false, data });
-
-  const listExternals = getEntryExternals<TId[]>(listKey);
-
-  if (listInternals) {
-    const ids = listExternals?.data;
-
-    if (ids) {
-      setEntryExternals(listKey, { data: ids ? [...ids, itemId] : [itemId] });
-      listInternals?.forceChange();
-    }
+  if (!hasEntry(itemKey)) {
+    initEntry(itemKey);
   }
+
+  const itemInternals = getEntryInternals(itemKey);
+
+  setEntryExternals(itemKey, { isLoading: false, data });
+  itemInternals?.forceChange();
 }
 
 async function updateOperation<TData, TId, TArgs>(
@@ -88,17 +80,21 @@ async function updateOperation<TData, TId, TArgs>(
   const itemKey = buildItemKey(key, itemId);
   const itemInternals = getEntryInternals(itemKey);
 
-  const listKey = buildListKey(key);
-  const listInternals = getEntryInternals(listKey);
-
   setEntryExternals(itemKey, { isLoading: true });
+
   itemInternals?.forceChange();
 
   const data = await resolver(args);
 
   setEntryExternals(itemKey, { isLoading: false, data });
+
   itemInternals?.forceChange();
-  listInternals?.forceChange();
+
+  itemInternals?.inList.forEach((listKey) => {
+    const listInternals = getEntryInternals(listKey);
+
+    listInternals?.forceChange();
+  });
 }
 
 async function deleteOperation<TData, TId, TArgs>(
@@ -112,9 +108,6 @@ async function deleteOperation<TData, TId, TArgs>(
   const itemKey = buildItemKey(key, itemId);
   const itemInternals = getEntryInternals(itemKey);
 
-  const listKey = buildListKey(key);
-  const listInternals = getEntryInternals(listKey);
-
   setEntryExternals(itemKey, { isLoading: true });
   itemInternals?.forceChange();
 
@@ -123,14 +116,15 @@ async function deleteOperation<TData, TId, TArgs>(
   setEntryExternals(itemKey, { isLoading: false, data: null });
   itemInternals?.forceChange();
 
-  const listExternals = getEntryExternals<TId[]>(listKey);
+  itemInternals?.inList.forEach((listKey) => {
+    const listInternals = getEntryInternals(listKey);
+    const listExternals = getEntryExternals<TId[]>(listKey);
 
-  if (listInternals) {
-    const ids = listExternals?.data?.filter((id) => id !== itemId);
+    const ids = listExternals.data?.filter((id) => id !== itemId);
 
     if (ids) {
       setEntryExternals(listKey, { data: ids });
       listInternals?.forceChange();
     }
-  }
+  });
 }

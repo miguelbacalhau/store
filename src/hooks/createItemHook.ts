@@ -34,10 +34,10 @@ export function createItemHook<TData, TId, TArgs>({
     const itemId = getId(args);
     const itemKey = buildItemKey(key, itemId);
 
-    const itemExternals = store.getEntryExternals(itemKey);
-
     useEffect(() => {
       async function init() {
+        const itemExternals = store.getEntryExternals(itemKey);
+
         if (!itemExternals.isFetched && !itemExternals.data) {
           setState({ isLoading: true });
 

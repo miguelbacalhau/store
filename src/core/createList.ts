@@ -1,26 +1,35 @@
-import { buildItemKey } from '../factories/keys';
+import { buildItemKey, buildListKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
 import { Store, StoreEntry } from '../factories/store';
 
-export type CreateListConfig<TData, TId> = {
+export type CreateListConfig<TData, TId, TArgs> = {
   key: string;
   getId: (data: TData) => TId;
+  args?: TArgs;
 };
 
-export function createList<TData, TId>(
-  { getEntryExternals, initEntry, setEntryExternals }: Store,
+export function createList<TData, TId, TArgs>(
+  {
+    initEntry,
+    hasEntry,
+    getEntryExternals,
+    setEntryExternals,
+    getEntryInternals,
+  }: Store,
   { addListener, removeListener, triggerListeners }: Listeners,
-  { key, getId }: CreateListConfig<TData, TId>,
+  { key, getId, args }: CreateListConfig<TData, TId, TArgs>,
 ) {
+  const listKey = buildListKey(key, args);
+
   function triggerChange() {
-    triggerListeners(key);
+    triggerListeners(listKey);
   }
 
   function forceChange() {
-    const listExternals = getEntryExternals<TId[]>(key);
+    const listExternals = getEntryExternals<TId[]>(listKey);
     const ids = listExternals?.data;
 
-    setEntryExternals(key, {
+    setEntryExternals(listKey, {
       ...listExternals,
       data: ids ? [...ids] : [],
     });
@@ -29,10 +38,10 @@ export function createList<TData, TId>(
   }
 
   function subscribe(listener: () => void) {
-    addListener(key, listener);
+    addListener(listKey, listener);
 
     return () => {
-      removeListener(key, listener);
+      removeListener(listKey, listener);
     };
   }
 
@@ -41,13 +50,20 @@ export function createList<TData, TId>(
       const id = getId(item);
       const itemKey = buildItemKey(key, id);
 
-      initEntry(itemKey, () => {});
+      if (!hasEntry(itemKey)) {
+        initEntry(itemKey);
+      }
+
       setEntryExternals(itemKey, { data: item });
+
+      const itemInternals = getEntryInternals(itemKey);
+
+      itemInternals?.inList.push(listKey);
 
       return id;
     });
 
-    setEntryExternals(key, {
+    setEntryExternals(listKey, {
       ...state,
       ...(dataIds ? { data: dataIds } : {}),
     });
@@ -56,10 +72,13 @@ export function createList<TData, TId>(
   }
 
   function getSnapshot() {
-    return getEntryExternals<TId[]>(key);
+    return getEntryExternals<TId[]>(listKey);
   }
 
-  initEntry(key, forceChange);
+  if (!hasEntry(listKey)) {
+    const listInternals = initEntry(listKey);
+    listInternals.forceChange = forceChange;
+  }
 
   return { subscribe, getSnapshot, setState };
 }
