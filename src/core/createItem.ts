@@ -80,7 +80,12 @@ export function createItem<TData, TId, TArgs, TSelect>(
   }
 
   if (!hasEntry(itemKey)) {
-    const itemInternals = initEntry(itemKey);
+    initEntry(itemKey);
+  }
+
+  const itemInternals = getEntryInternals(itemKey);
+
+  if (itemInternals) {
     itemInternals.forceChange = triggerChange;
   }
 

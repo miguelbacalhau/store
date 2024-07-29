@@ -25,6 +25,8 @@ export function createList<TData, TId, TArgs>(
     triggerListeners(listKey);
   }
 
+  // the list only stores the ids of the items so to trigger a change it's necessary
+  // to create a new data entry so that react will trigger a re-render
   function forceChange() {
     const listExternals = getEntryExternals<TId[]>(listKey);
     const ids = listExternals?.data;
@@ -58,7 +60,7 @@ export function createList<TData, TId, TArgs>(
 
       const itemInternals = getEntryInternals(itemKey);
 
-      itemInternals?.inList.push(listKey);
+      itemInternals?.inList.add(listKey);
 
       return id;
     });
@@ -76,8 +78,13 @@ export function createList<TData, TId, TArgs>(
   }
 
   if (!hasEntry(listKey)) {
-    const listInternals = initEntry(listKey);
-    listInternals.forceChange = forceChange;
+    initEntry(listKey);
+  }
+
+  const itemInternals = getEntryInternals(listKey);
+
+  if (itemInternals) {
+    itemInternals.forceChange = forceChange;
   }
 
   return { subscribe, getSnapshot, setState };

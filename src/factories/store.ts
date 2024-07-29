@@ -6,7 +6,7 @@ export type StoreEntry<TData = unknown> = {
   };
   internals: {
     forceChange: () => void;
-    inList: string[];
+    inList: Set<string>;
   };
 };
 
@@ -22,12 +22,10 @@ export function createStore() {
   function initEntry<TData>(key: string) {
     const entry: StoreEntry<TData> = {
       externals: { data: null, isLoading: false, isFetched: false },
-      internals: { forceChange: () => {}, inList: [] },
+      internals: { forceChange: () => {}, inList: new Set() },
     };
 
     store[key] = entry;
-
-    return entry.internals;
   }
 
   function hasEntry(key: string) {

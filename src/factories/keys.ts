@@ -5,3 +5,7 @@ export function buildItemKey(key: string, id: unknown) {
 export function buildListKey(key: string, args: unknown) {
   return `${key}:list:${JSON.stringify(args)}`;
 }
+
+export function buildNewItemsKey(key: string) {
+  return `${key}:new-items`;
+}

@@ -1,4 +1,4 @@
-import { buildItemKey } from '../factories/keys';
+import { buildItemKey, buildNewItemsKey } from '../factories/keys';
 import { Store } from '../factories/store';
 
 export type CreateMutationConfig<TData, TId, TArgs> =
@@ -49,7 +49,13 @@ export function createMutation<TData, TId, TArgs>(
 }
 
 async function createOperation<TData, TId>(
-  { initEntry, hasEntry, setEntryExternals, getEntryInternals }: Store,
+  {
+    initEntry,
+    hasEntry,
+    getEntryExternals,
+    setEntryExternals,
+    getEntryInternals,
+  }: Store,
   key: string,
   getId: (data: TData) => TId,
   resolver: () => Promise<TData>,
@@ -67,6 +73,22 @@ async function createOperation<TData, TId>(
 
   setEntryExternals(itemKey, { isLoading: false, data });
   itemInternals?.forceChange();
+
+  const newItemsKey = buildNewItemsKey(key);
+
+  if (!hasEntry(newItemsKey)) {
+    initEntry(newItemsKey);
+  }
+
+  const newItemsExternals = getEntryExternals<TId[]>(newItemsKey);
+  const newItemsInternals = getEntryInternals(newItemsKey);
+
+  const ids = newItemsExternals.data ? newItemsExternals.data : [];
+
+  setEntryExternals(newItemsKey, {
+    data: [...ids, itemId],
+  });
+  newItemsInternals?.forceChange();
 }
 
 async function updateOperation<TData, TId, TArgs>(

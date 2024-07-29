@@ -50,23 +50,7 @@ describe('createMutation', () => {
       resolver: (_: null) => Promise.resolve(book4),
     });
 
-    // const snapshotBeforeMutation = list.getSnapshot();
-
-    // const bookIds = bookList.map((book) => book.id);
-
-    // expect(snapshotBeforeMutation).toEqual({
-    //   ...initialEntryExternalFixture,
-    //   data: bookIds,
-    // });
-
     await mutation(null);
-
-    // const snapshotAfterMutation = list.getSnapshot();
-
-    // expect(snapshotAfterMutation).toEqual({
-    //   ...initialEntryExternalFixture,
-    //   data: [...bookIds, book4.id],
-    // });
 
     const item4 = createItem(store, listeners, {
       key,

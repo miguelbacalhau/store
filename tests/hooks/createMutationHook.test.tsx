@@ -4,13 +4,14 @@ import '@testing-library/jest-dom/jest-globals';
 import { describe, expect, test } from '@jest/globals';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
 import { createItemHook } from '../../src/hooks/createItemHook';
 import { createListHook } from '../../src/hooks/createListHook';
 import { createMutationHook } from '../../src/hooks/createMutationHook';
+import { createNewItemsHook } from '../../src/hooks/createNewItemsHook';
 import { StoreProvider } from '../../src/hooks/StoreProvider';
 
 const key = 'Fish';
@@ -33,6 +34,9 @@ const useFishes = createListHook({
       { id: 1, name: initialName },
       { id: 2, name: 'Jelly' },
     ]),
+});
+const useNewFishes = createNewItemsHook<{ id: number; name: string }>({
+  key,
 });
 
 const useFishCreate = createMutationHook({
@@ -75,6 +79,19 @@ function createComponent() {
       </>
     );
   }
+  function NewItems() {
+    const { data: fishes } = useNewFishes();
+
+    return (
+      <>
+        {fishes?.map((fish) => (
+          <h1 data-testid="new-item" key={fish?.id}>
+            {fish?.name}
+          </h1>
+        ))}
+      </>
+    );
+  }
 
   function Item() {
     const { data: fish } = useFish({ id: 1 });
@@ -110,6 +127,7 @@ function createComponent() {
       <StoreProvider store={store} listeners={listeners}>
         <Item />
         <List />
+        <NewItems />
         <Buttons />
       </StoreProvider>
     );
@@ -126,23 +144,13 @@ describe('createMutationHook', () => {
       render(<Component />);
     });
 
-    screen.queryAllByTestId('list').forEach((item) => {
+    screen.queryAllByTestId('new-item').forEach((item) => {
       expect(item).not.toHaveTextContent(updateName);
     });
 
     await userEvent.click(screen.getByTestId('create'));
 
-    const list = screen.queryAllByTestId('list');
-
-    expect(list.length).toBe(3);
-
-    list.forEach((heading, index) => {
-      if (index === 2) {
-        expect(heading).toHaveTextContent(updateName);
-      } else {
-        expect(heading).not.toHaveTextContent(updateName);
-      }
-    });
+    expect(screen.getByTestId('new-item')).toHaveTextContent(updateName);
   });
 
   test('the created update hook should mutate the item state', async () => {
