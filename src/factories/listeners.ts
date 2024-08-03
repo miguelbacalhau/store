@@ -17,7 +17,7 @@ export function createListeners() {
     listenerMap[key]?.forEach((listener) => listener());
   }
 
-  return { addListener, removeListener, triggerListeners };
+  return { addListener, removeListener, triggerListeners, listenerMap };
 }
 
 export type Listeners = ReturnType<typeof createListeners>;

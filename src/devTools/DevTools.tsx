@@ -6,12 +6,13 @@ import { useStore } from '../hooks/useStore';
 import { Entry } from './components/Entry';
 import { EntryDetails } from './components/EntryDetails';
 import { QuickFilter } from './components/QuickFilters';
+import { grayscaleBlack } from './cssTokens/colors';
 import { space100 } from './cssTokens/spacings';
 import { Button } from './ui/Button';
 import { Drawer } from './ui/Drawer';
 
 export function DevTools() {
-  const { store } = useStore();
+  const { store, listeners } = useStore();
 
   const [isVisible, setIsVisible] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
@@ -49,13 +50,18 @@ export function DevTools() {
         </div>
         <div style={layoutStyle}>
           <div style={listStyle}>
-            {filteredEntries.map(([key, entry]) => (
-              <Entry
-                key={key}
-                entryKey={key}
-                onSelect={() => setSelectedEntry(entry)}
-              />
-            ))}
+            {filteredEntries.map(([key, entry]) => {
+              const listenerCount = listeners.listenerMap[key]?.length;
+
+              return (
+                <Entry
+                  key={key}
+                  entryKey={key}
+                  listenerCount={listenerCount}
+                  onSelect={() => setSelectedEntry(entry)}
+                />
+              );
+            })}
           </div>
           <div style={detailsStyle}>
             {selectedEntry && <EntryDetails entry={selectedEntry} />}
@@ -69,23 +75,18 @@ export function DevTools() {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: `1fr 1fr`,
-  // gridTemplateAreas: `
-  //   'header header header'
-  //   'list details details'
-  //   `,
   gap: space100,
 };
 
-const headerStyle: CSSProperties = {
-  // gridArea: 'header',
-};
+const headerStyle: CSSProperties = {};
 
 const listStyle: CSSProperties = {
-  // gridArea: 'list',
-  display: 'flex',
-  flexDirection: 'column',
+  display: 'grid',
+  gridTemplateRows: '1fr',
+  backgroundColor: grayscaleBlack,
+  border: `1px solid ${grayscaleBlack}`,
+
+  gap: '1px',
 };
 
-const detailsStyle: CSSProperties = {
-  // gridArea: 'details',
-};
+const detailsStyle: CSSProperties = {};
