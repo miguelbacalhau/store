@@ -2,18 +2,23 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
 import { createList, CreateListConfig } from '../core/createList';
 import { buildItemKey } from '../factories/keys';
+import { StoreEntry } from '../factories/store';
 import { useStore } from './useStore';
 
-type UseListArgs<TData, TId, TArgs> = {
+type UseCreateListConfig<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
 } & Omit<CreateListConfig<TData, TId, TArgs>, 'args'>;
+
+type UseListHook<TData, TArgs> = TArgs extends undefined
+  ? () => StoreEntry<TData[]>['externals']
+  : (args: TArgs) => StoreEntry<TData[]>['externals'];
 
 export function createListHook<TData, TId, TArgs>({
   key,
   getId,
   resolver,
-}: UseListArgs<TData, TId, TArgs>) {
-  function useList(args: TArgs) {
+}: UseCreateListConfig<TData, TId, TArgs>): UseListHook<TData, TArgs> {
+  function useList(args: TArgs): StoreEntry<TData>['externals'] {
     const { store, listeners } = useStore();
     const { subscribe, getSnapshot, setState } = useMemo(
       () =>
@@ -51,7 +56,7 @@ export function createListHook<TData, TId, TArgs>({
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return listWithData;
+    return listWithData as StoreEntry<TData>['externals'];
   }
 
   return useList;
