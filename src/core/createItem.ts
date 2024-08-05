@@ -57,7 +57,9 @@ export function createItem<TData, TId, TArgs, TSelect>(
 
     const itemInternals = getEntryInternals(itemKey);
 
-    itemInternals?.inList.forEach((listKey) => {
+    itemInternals?.referencedBy.forEach((reference) => {
+      const listKey = reference.referenceKey;
+
       const listInternals = getEntryInternals(listKey);
       const listExternals = getEntryExternals<TId[]>(listKey);
 

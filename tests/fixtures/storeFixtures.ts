@@ -5,7 +5,7 @@ export const forceChange = () => {};
 export const initialEntryExternalFixture = defaultEntryExternals;
 export const initialEntryInternalFixture = {
   forceChange,
-  inList: [],
+  referencedBy: new Set(),
 };
 
 export const initialEntryFixture = {

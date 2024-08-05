@@ -1,6 +1,7 @@
 import { buildItemKey, buildListKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
 import { Store, StoreEntry } from '../factories/store';
+import { createReference, Reference } from './createReference';
 
 export type CreateListConfig<TData, TId, TArgs> = {
   key: string;
@@ -28,12 +29,12 @@ export function createList<TData, TId, TArgs>(
   // the list only stores the ids of the items so to trigger a change it's necessary
   // to create a new data entry so that react will trigger a re-render
   function forceChange() {
-    const listExternals = getEntryExternals<TId[]>(listKey);
-    const ids = listExternals?.data;
+    const listExternals = getEntryExternals<Reference[]>(listKey);
+    const references = listExternals?.data;
 
     setEntryExternals(listKey, {
       ...listExternals,
-      data: ids ? [...ids] : [],
+      data: references ? [...references] : [],
     });
 
     triggerChange();
@@ -60,9 +61,11 @@ export function createList<TData, TId, TArgs>(
 
       const itemInternals = getEntryInternals(itemKey);
 
-      itemInternals?.inList.add(listKey);
+      const listReference = createReference(listKey);
 
-      return id;
+      itemInternals?.referencedBy.add(listReference);
+
+      return createReference(itemKey);
     });
 
     setEntryExternals(listKey, {
@@ -74,7 +77,7 @@ export function createList<TData, TId, TArgs>(
   }
 
   function getSnapshot() {
-    return getEntryExternals<TId[]>(listKey);
+    return getEntryExternals<Reference[]>(listKey);
   }
 
   if (!hasEntry(listKey)) {

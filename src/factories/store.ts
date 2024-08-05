@@ -1,3 +1,5 @@
+import { Reference } from '../core/createReference';
+
 export type StoreEntry<TData = unknown> = {
   externals: {
     isLoading: boolean;
@@ -6,7 +8,7 @@ export type StoreEntry<TData = unknown> = {
   };
   internals: {
     forceChange: () => void;
-    inList: Set<string>;
+    referencedBy: Set<Reference>;
   };
 };
 
@@ -22,7 +24,7 @@ export function createStore() {
   function initEntry<TData>(key: string) {
     const entry: StoreEntry<TData> = {
       externals: { data: null, isLoading: false, isFetched: false },
-      internals: { forceChange: () => {}, inList: new Set() },
+      internals: { forceChange: () => {}, referencedBy: new Set() },
     };
 
     store[key] = entry;

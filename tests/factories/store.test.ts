@@ -16,32 +16,48 @@ describe('global store basic functions', () => {
     expect(store).toEqual({});
   });
 
-  test('initialization includes all necessary fields', () => {
-    const { store, initEntry } = createStore();
+  test.only('initialization includes all necessary fields', () => {
+    const { store, initEntry, getEntryInternals } = createStore();
 
-    const internals = initEntry(key);
-    internals.forceChange = forceChange;
+    initEntry(key);
+
+    const internals = getEntryInternals(key);
+
+    if (internals) {
+      internals.forceChange = forceChange;
+    }
 
     expect(store[key]).toEqual(initialEntryFixture);
   });
 
   test('getExternal should return only the external story entry data', () => {
-    const { initEntry, getEntryExternals } = createStore();
+    const { initEntry, getEntryExternals, getEntryInternals } = createStore();
 
     initEntry(key);
 
-    const internals = initEntry(key);
-    internals.forceChange = forceChange;
+    initEntry(key);
+    const internals = getEntryInternals(key);
+
+    if (internals) {
+      internals.forceChange = forceChange;
+    }
+
     const externals = getEntryExternals(key);
 
     expect(externals).toEqual(initialEntryExternalFixture);
   });
 
   test('setExternal should change the external story entry data', () => {
-    const { store, initEntry, setEntryExternals } = createStore();
+    const { store, initEntry, setEntryExternals, getEntryInternals } =
+      createStore();
 
-    const internals = initEntry(key);
-    internals.forceChange = forceChange;
+    initEntry(key);
+
+    const internals = getEntryInternals(key);
+
+    if (internals) {
+      internals.forceChange = forceChange;
+    }
 
     const newExternals = {
       ...initialEntryExternalFixture,
@@ -64,8 +80,7 @@ describe('global store basic functions', () => {
 
     expect(beforeInitInternals).toBe(undefined);
 
-    const internals = initEntry(key);
-    internals.forceChange = forceChange;
+    initEntry(key);
 
     const afterInitInternals = getEntryInternals(key);
 

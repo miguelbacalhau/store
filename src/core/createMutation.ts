@@ -1,5 +1,6 @@
 import { buildItemKey, buildNewItemsKey } from '../factories/keys';
 import { Store } from '../factories/store';
+import { Reference } from './createReference';
 
 export type CreateMutationConfig<TData, TId, TArgs> =
   | CreateOperationConfig<TData, TId, TArgs>
@@ -112,8 +113,8 @@ async function updateOperation<TData, TId, TArgs>(
 
   itemInternals?.forceChange();
 
-  itemInternals?.inList.forEach((listKey) => {
-    const listInternals = getEntryInternals(listKey);
+  itemInternals?.referencedBy.forEach((reference) => {
+    const listInternals = getEntryInternals(reference.referenceKey);
 
     listInternals?.forceChange();
   });
@@ -138,11 +139,15 @@ async function deleteOperation<TData, TId, TArgs>(
   setEntryExternals(itemKey, { isLoading: false, data: null });
   itemInternals?.forceChange();
 
-  itemInternals?.inList.forEach((listKey) => {
-    const listInternals = getEntryInternals(listKey);
-    const listExternals = getEntryExternals<TId[]>(listKey);
+  itemInternals?.referencedBy.forEach((reference) => {
+    const listKey = reference.referenceKey;
 
-    const ids = listExternals.data?.filter((id) => id !== itemId);
+    const listInternals = getEntryInternals(listKey);
+    const listExternals = getEntryExternals<Reference[]>(listKey);
+
+    const ids = listExternals.data?.filter((reference) => {
+      return reference.referenceKey !== itemKey;
+    });
 
     if (ids) {
       setEntryExternals(listKey, { data: ids });

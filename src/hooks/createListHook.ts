@@ -1,24 +1,18 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
 import { createList, CreateListConfig } from '../core/createList';
-import { buildItemKey } from '../factories/keys';
-import { StoreEntry } from '../factories/store';
 import { useStore } from './useStore';
 
-type UseCreateListConfig<TData, TId, TArgs> = {
+type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
 } & Omit<CreateListConfig<TData, TId, TArgs>, 'args'>;
-
-type UseListHook<TData, TArgs> = TArgs extends undefined
-  ? () => StoreEntry<TData[]>['externals']
-  : (args: TArgs) => StoreEntry<TData[]>['externals'];
 
 export function createListHook<TData, TId, TArgs>({
   key,
   getId,
   resolver,
-}: UseCreateListConfig<TData, TId, TArgs>): UseListHook<TData, TArgs> {
-  function useList(args: TArgs): StoreEntry<TData>['externals'] {
+}: UseListArgs<TData, TId, TArgs>) {
+  function useList(args: TArgs) {
     const { store, listeners } = useStore();
     const { subscribe, getSnapshot, setState } = useMemo(
       () =>
@@ -32,8 +26,8 @@ export function createListHook<TData, TId, TArgs>({
 
     const list = useSyncExternalStore(subscribe, getSnapshot);
 
-    const itemsData = list.data?.map((id) => {
-      const itemKey = buildItemKey(key, id);
+    const itemsData = list.data?.map((reference) => {
+      const itemKey = reference.referenceKey;
       const itemExternal = store.getEntryExternals<TData>(itemKey);
 
       return itemExternal.data;
@@ -56,7 +50,7 @@ export function createListHook<TData, TId, TArgs>({
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return listWithData as StoreEntry<TData>['externals'];
+    return listWithData;
   }
 
   return useList;

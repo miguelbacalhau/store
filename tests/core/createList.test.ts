@@ -1,6 +1,8 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
 import { createList } from '../../src/core/createList';
+import { createReference } from '../../src/core/createReference';
+import { buildItemKey } from '../../src/factories/keys';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
 import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
@@ -32,11 +34,17 @@ describe('createList', () => {
 
     const snapshot1 = getSnapshot();
 
-    const data1Ids = { data: data1.data.map((e) => e.id) };
+    const itemReferences = {
+      data: data1.data.map((e) => {
+        const itemKey = buildItemKey(key, e.id);
+
+        return createReference(itemKey);
+      }),
+    };
 
     expect(snapshot1).toEqual({
       ...initialEntryExternalFixture,
-      ...data1Ids,
+      ...itemReferences,
     });
 
     const data2 = { isLoading: true };
@@ -47,7 +55,7 @@ describe('createList', () => {
 
     expect(snapshot2).toEqual({
       ...initialEntryExternalFixture,
-      ...data1Ids,
+      ...itemReferences,
       ...data2,
     });
   });

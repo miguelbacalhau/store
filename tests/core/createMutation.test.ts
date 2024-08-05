@@ -3,6 +3,8 @@ import { describe, expect, test } from '@jest/globals';
 import { createItem } from '../../src/core/createItem';
 import { createList } from '../../src/core/createList';
 import { createMutation } from '../../src/core/createMutation';
+import { createReference } from '../../src/core/createReference';
+import { buildItemKey } from '../../src/factories/keys';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
 import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
@@ -80,11 +82,15 @@ describe('createMutation', () => {
 
     const snapshotBeforeMutation = list.getSnapshot();
 
-    const bookIds = bookList.map((book) => book.id);
+    const itemReferences = bookList.map((e) => {
+      const itemKey = buildItemKey(key, e.id);
+
+      return createReference(itemKey);
+    });
 
     expect(snapshotBeforeMutation).toEqual({
       ...initialEntryExternalFixture,
-      data: bookIds,
+      data: itemReferences,
     });
 
     const itemBeforeSnapshot = item.getSnapshot();
@@ -100,7 +106,7 @@ describe('createMutation', () => {
 
     expect(snapshotAfterMutation).toEqual({
       ...initialEntryExternalFixture,
-      data: bookIds,
+      data: itemReferences,
     });
 
     const itemAfterSnapshot = item.getSnapshot();
@@ -123,11 +129,15 @@ describe('createMutation', () => {
 
     const snapshotBeforeMutation = list.getSnapshot();
 
-    const bookIds = bookList.map((book) => book.id);
+    const itemReferences = bookList.map((e) => {
+      const itemKey = buildItemKey(key, e.id);
+
+      return createReference(itemKey);
+    });
 
     expect(snapshotBeforeMutation).toEqual({
       ...initialEntryExternalFixture,
-      data: bookIds,
+      data: itemReferences,
     });
 
     const itemBeforeSnapshot = item.getSnapshot();
@@ -143,7 +153,11 @@ describe('createMutation', () => {
 
     expect(snapshotAfterMutation).toEqual({
       ...initialEntryExternalFixture,
-      data: bookIds.filter((id) => id !== 1),
+      data: itemReferences.filter((reference) => {
+        const itemKey = buildItemKey(key, 1);
+
+        return reference.referenceKey !== itemKey;
+      }),
     });
 
     const itemAfterSnapshot = item.getSnapshot();
