@@ -14,7 +14,7 @@ export function buildNewItemsKey(key: string) {
 
 export function deconstructKey(
   key: string,
-): [string, string, unknown | undefined] {
+): [string, string, string | undefined] {
   const [keyK, type, idOrArgs] = key.split(separator);
 
   return [keyK, type, idOrArgs];

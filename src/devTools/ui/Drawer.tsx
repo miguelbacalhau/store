@@ -42,10 +42,10 @@ export function Drawer({ onClose, initialSize, children }: DrawerProps) {
 }
 
 const drawerStyle: CSSProperties = {
-  position: 'absolute',
+  position: 'fixed',
   bottom: 0,
+  right: 0,
   left: 0,
-  width: '100%',
 };
 
 const drawerContentStyle: CSSProperties = {

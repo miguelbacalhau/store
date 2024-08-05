@@ -3,11 +3,10 @@ import { CSSProperties, useState } from 'react';
 import { deconstructKey } from '../factories/keys';
 import { StoreEntry } from '../factories/store';
 import { useStore } from '../hooks/useStore';
-import { Entry } from './components/Entry';
 import { EntryDetails } from './components/EntryDetails';
+import { EntryInfo } from './components/EntryInfo';
 import { QuickFilter } from './components/QuickFilters';
 import { grayscaleBlack } from './cssTokens/colors';
-import { space100 } from './cssTokens/spacings';
 import { Button } from './ui/Button';
 import { Drawer } from './ui/Drawer';
 
@@ -53,12 +52,16 @@ export function DevTools() {
             {filteredEntries.map(([key, entry]) => {
               const listenerCount = listeners.listenerMap[key]?.length;
 
+              const [mainKey, typeKey, restKey] = deconstructKey(key);
+
               return (
-                <Entry
+                <EntryInfo
                   key={key}
-                  entryKey={key}
+                  mainKey={mainKey}
+                  typeKey={typeKey}
+                  restKey={restKey}
                   listenerCount={listenerCount}
-                  onSelect={() => setSelectedEntry(entry)}
+                  onClick={() => setSelectedEntry(entry)}
                 />
               );
             })}
@@ -75,7 +78,6 @@ export function DevTools() {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: `1fr 1fr`,
-  gap: space100,
 };
 
 const headerStyle: CSSProperties = {};
@@ -85,8 +87,9 @@ const listStyle: CSSProperties = {
   gridTemplateRows: '1fr',
   backgroundColor: grayscaleBlack,
   border: `1px solid ${grayscaleBlack}`,
-
   gap: '1px',
 };
 
-const detailsStyle: CSSProperties = {};
+const detailsStyle: CSSProperties = {
+  borderTop: `1px solid ${grayscaleBlack}`,
+};
