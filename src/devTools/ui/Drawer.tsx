@@ -52,7 +52,6 @@ const drawerContentStyle: CSSProperties = {
   backgroundColor: grayscaleWhite,
   border: '1px solid black',
   padding: space200,
-  width: '100%',
   height: '100%',
   overflow: 'scroll',
 };

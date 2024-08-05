@@ -10,6 +10,7 @@ type QuickFilterProps = {
 export function QuickFilter({ filters, onSelect }: QuickFilterProps) {
   return (
     <div style={quickFilterStyle}>
+      <div style={titleStyle}>Quick filters:</div>
       {filters.map((filter) => (
         <Button
           key={filter}
@@ -27,6 +28,12 @@ export function QuickFilter({ filters, onSelect }: QuickFilterProps) {
 
 const quickFilterStyle: CSSProperties = {
   display: 'flex',
+  alignItems: 'center',
   gap: space50,
   padding: `${space50} 0 ${space50} 0`,
+};
+
+const titleStyle: CSSProperties = {
+  fontWeight: 700,
+  paddingRight: `${space50}`,
 };

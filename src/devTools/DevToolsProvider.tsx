@@ -1,10 +1,13 @@
 import { DevTools } from './DevTools';
+import { RouterProvider } from './router/RouterProvider';
 import { UiProvider } from './ui/UiProvider';
 
 export function DevToolsProvider() {
   return (
-    <UiProvider>
-      <DevTools />
-    </UiProvider>
+    <RouterProvider>
+      <UiProvider>
+        <DevTools />
+      </UiProvider>
+    </RouterProvider>
   );
 }

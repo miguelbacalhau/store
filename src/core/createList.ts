@@ -1,7 +1,7 @@
 import { buildItemKey, buildListKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
+import { createReference, Reference } from '../factories/reference';
 import { Store, StoreEntry } from '../factories/store';
-import { createReference, Reference } from './createReference';
 
 export type CreateListConfig<TData, TId, TArgs> = {
   key: string;

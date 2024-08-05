@@ -1,9 +1,9 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
 import { createList } from '../../src/core/createList';
-import { createReference } from '../../src/core/createReference';
 import { buildItemKey } from '../../src/factories/keys';
 import { createListeners } from '../../src/factories/listeners';
+import { createReference } from '../../src/factories/reference';
 import { createStore } from '../../src/factories/store';
 import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
 

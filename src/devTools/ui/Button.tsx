@@ -20,12 +20,14 @@ type Variant = 'primary' | 'secondary' | 'grey';
 
 type ButtonProps = {
   variant?: Variant;
+  isDisabled?: boolean;
   children: ReactNode;
   onClick: () => void;
 };
 
 export function Button({
   variant = 'primary',
+  isDisabled = false,
   children,
   onClick,
 }: ButtonProps) {
@@ -53,7 +55,12 @@ export function Button({
 
   return (
     <button
-      style={{ ...buttonStyle, ...variantFinalStyle }}
+      style={{
+        ...buttonStyle,
+        ...variantFinalStyle,
+        ...(isDisabled ? disabledStyle : {}),
+      }}
+      disabled={isDisabled}
       onMouseEnter={handleHover}
       onMouseLeave={handleNormal}
       onMouseDown={handlePress}
@@ -63,6 +70,29 @@ export function Button({
       {children}
     </button>
   );
+}
+
+function getVariantColor(variant: Variant) {
+  if (variant === 'primary') {
+    return { normal: primary200, hover: primary300, pressed: primary400 };
+  }
+  if (variant === 'secondary') {
+    return { normal: secondary200, hover: secondary300, pressed: secondary400 };
+  }
+
+  return {
+    normal: grayscaleWhite,
+    hover: grayscale25Gray,
+    pressed: grayscale100Gray,
+  };
+}
+
+function getVariantStyle(variant: Variant) {
+  if (variant === 'grey') {
+    return { color: grayscaleBlack, border: `1px solid ${grayscale200Gray}` };
+  }
+
+  return {};
 }
 
 const clearStyle: CSSProperties = {
@@ -84,24 +114,7 @@ const buttonStyle: CSSProperties = {
   borderRadius: radius50,
 };
 
-function getVariantColor(variant: Variant) {
-  if (variant === 'primary') {
-    return { normal: primary200, hover: primary300, pressed: primary400 };
-  }
-  if (variant === 'secondary') {
-    return { normal: secondary200, hover: secondary300, pressed: secondary400 };
-  }
-
-  return {
-    normal: grayscaleWhite,
-    hover: grayscale25Gray,
-    pressed: grayscale100Gray,
-  };
-}
-function getVariantStyle(variant: Variant) {
-  if (variant === 'grey') {
-    return { color: grayscaleBlack, border: `1px solid ${grayscale200Gray}` };
-  }
-
-  return {};
-}
+const disabledStyle: CSSProperties = {
+  color: grayscale100Gray,
+  cursor: 'not-allowed',
+};

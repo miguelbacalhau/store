@@ -1,7 +1,9 @@
 import { CSSProperties, MouseEvent as ReactMouseEvent, useState } from 'react';
 
+import { isReference } from '../../factories/reference';
 import { error200 } from '../cssTokens/colors';
 import { space100, space200 } from '../cssTokens/spacings';
+import { ReferenceLink } from './ReferenceLink';
 
 type DataExplorerProps = { data: unknown };
 type DataExplorerHelperProps = { prevKey: string; data: object };
@@ -26,12 +28,22 @@ export function DataExplorer({ data }: DataExplorerProps) {
 
       const isExpanded = expandedKeys[nestedKey];
       const isValueObject = isObject(value);
+      const isValueReference = isReference(value);
 
       if (!isValueObject) {
         return (
           <div key={nestedKey} style={entryStyle}>
             <div>{key}:</div>
             <div style={valueStyle}>{stringifyData(value)}</div>
+          </div>
+        );
+      }
+
+      if (isValueReference) {
+        return (
+          <div key={nestedKey} style={entryStyle}>
+            <div>{key}:</div>
+            <ReferenceLink reference={value} />
           </div>
         );
       }
