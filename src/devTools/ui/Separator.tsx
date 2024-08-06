@@ -1,14 +1,11 @@
 import { CSSProperties } from 'react';
 
-import { space25, space100 } from '../cssTokens/spacings';
-
 export function Separator() {
-  return <div style={resizerStyle} />;
+  return <div style={separatorStyle} />;
 }
 
-const resizerStyle: CSSProperties = {
+const separatorStyle: CSSProperties = {
   width: '100%',
-  height: space25,
-  margin: `${space100} 0 ${space100} 0`,
+  height: '1px',
   backgroundColor: 'black',
 };

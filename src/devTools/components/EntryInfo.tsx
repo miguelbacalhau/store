@@ -13,6 +13,7 @@ import {
 } from '../cssTokens/colors';
 import { space100, space200 } from '../cssTokens/spacings';
 import { Hover } from '../ui/Hover';
+import { fontWeight500 } from '../cssTokens/fonts';
 
 type EntryInfoProps = {
   mainKey: string;
@@ -84,11 +85,11 @@ const listenerCountStyle: CSSProperties = {
   padding: `${space100} ${space200} ${space100} ${space200}`,
   borderRight: `1px solid ${grayscaleBlack}`,
   color: grayscaleWhite,
-  fontWeight: 700,
+  fontWeight: fontWeight500,
 };
 
 const mainKeyStyle: CSSProperties = {
-  fontWeight: 700,
+  fontWeight: fontWeight500,
 };
 
 const restKeyValueStyle: CSSProperties = {

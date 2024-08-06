@@ -2,6 +2,7 @@ import { CSSProperties } from 'react';
 
 import { space50 } from '../cssTokens/spacings';
 import { Button } from '../ui/Button';
+import { fontWeight500 } from '../cssTokens/fonts';
 
 type QuickFilterProps = {
   filters: string[];
@@ -34,6 +35,6 @@ const quickFilterStyle: CSSProperties = {
 };
 
 const titleStyle: CSSProperties = {
-  fontWeight: 700,
+  fontWeight: fontWeight500,
   paddingRight: `${space50}`,
 };

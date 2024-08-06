@@ -13,7 +13,9 @@ export function EntryExternals({ externals }: EntryExternalsProps) {
     <div style={entryExternalsStyle}>
       <div>
         <div>Data</div>
-        <DataExplorer data={externals.data} />
+        <div>
+          <DataExplorer data={externals.data} />
+        </div>
       </div>
     </div>
   );
