@@ -105,6 +105,7 @@ export function DevTools() {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: `1fr 1fr`,
+  height: '100%',
 };
 
 const headerStyle: CSSProperties = {
@@ -120,6 +121,8 @@ const listStyle: CSSProperties = {
   backgroundColor: grayscaleBlack,
   border: `1px solid ${grayscaleBlack}`,
   gap: '1px',
+  height: '100%',
+  overflowY: 'auto',
 };
 
 const detailsStyle: CSSProperties = {

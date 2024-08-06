@@ -35,7 +35,7 @@ export function Drawer({ onClose, initialSize, children }: DrawerProps) {
         <div>
           <Button onClick={onClose}>Close</Button>
         </div>
-        <div>{children}</div>
+        <div style={drawerContentBodyStyle}>{children}</div>
       </div>
     </div>
   );
@@ -53,9 +53,12 @@ const drawerContentStyle: CSSProperties = {
   border: '1px solid black',
   padding: space200,
   height: '100%',
-  overflow: 'scroll',
 };
 
 const resizerSize: CSSProperties = {
   height: space200,
+};
+
+const drawerContentBodyStyle: CSSProperties = {
+  height: '100%',
 };
