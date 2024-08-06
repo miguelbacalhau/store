@@ -6,7 +6,7 @@ import { EntryDetails } from './components/EntryDetails';
 import { EntryInfo } from './components/EntryInfo';
 import { QuickFilter } from './components/QuickFilters';
 import { grayscaleBlack } from './cssTokens/colors';
-import { space25, space100 } from './cssTokens/spacings';
+import { space100 } from './cssTokens/spacings';
 import { useRouter } from './router/useRouter';
 import { Button } from './ui/Button';
 import { Drawer } from './ui/Drawer';
@@ -30,7 +30,8 @@ export function DevTools() {
     setIsVisible((prevIsVisible) => !prevIsVisible);
   }
 
-  const selectedEntry = currentRoute && store.store[currentRoute];
+  const selectedKey = currentRoute;
+  const selectedEntry = selectedKey && store.store[selectedKey];
 
   const storeEntries = Object.entries(store.store);
   const filteredEntries = filter
@@ -94,7 +95,9 @@ export function DevTools() {
             })}
           </div>
           <div style={detailsStyle}>
-            {selectedEntry && <EntryDetails entry={selectedEntry} />}
+            {selectedEntry && (
+              <EntryDetails entryKey={selectedKey} entry={selectedEntry} />
+            )}
           </div>
         </div>
       </Drawer>
@@ -105,7 +108,8 @@ export function DevTools() {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: `1fr 1fr`,
-  height: '100%',
+  height: 'calc(100% - 47.5px)',
+  overflow: 'hidden',
 };
 
 const headerStyle: CSSProperties = {
@@ -121,7 +125,6 @@ const listStyle: CSSProperties = {
   backgroundColor: grayscaleBlack,
   border: `1px solid ${grayscaleBlack}`,
   gap: '1px',
-  height: '100%',
   overflowY: 'auto',
 };
 

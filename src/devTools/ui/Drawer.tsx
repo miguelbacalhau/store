@@ -25,7 +25,7 @@ export function Drawer({ onClose, initialSize, children }: DrawerProps) {
     });
   }
   return (
-    <div style={{ ...drawerStyle, height: size }}>
+    <div style={{ ...drawerStyle }}>
       <Draggable
         cursor="row-resize"
         style={resizerSize}
@@ -35,7 +35,9 @@ export function Drawer({ onClose, initialSize, children }: DrawerProps) {
         <div>
           <Button onClick={onClose}>Close</Button>
         </div>
-        <div style={drawerContentBodyStyle}>{children}</div>
+        <div style={{ ...drawerContentBodyStyle, height: size }}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -52,7 +54,6 @@ const drawerContentStyle: CSSProperties = {
   backgroundColor: grayscaleWhite,
   border: '1px solid black',
   padding: space200,
-  height: '100%',
 };
 
 const resizerSize: CSSProperties = {
