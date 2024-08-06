@@ -31,7 +31,7 @@ export const usePerson = createItemHook({
 export const usePersonList = createListHook({
   key,
   getId: (data) => data.id,
-  resolver: (_: undefined) => {
+  resolver: () => {
     return Promise.resolve(personGenerator(1));
   },
 });

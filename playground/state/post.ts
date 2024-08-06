@@ -16,7 +16,7 @@ function postGenerator(amount: number) {
     return {
       id: nextId,
       title: `Post title ${nextId}`,
-      descrption: `this i a post about ${nextId} things`,
+      description: `this i a post about ${nextId} things`,
     };
   });
 }
@@ -32,8 +32,8 @@ export const usePost = createItemHook({
 export const usePostList = createListHook({
   key,
   getId: (data) => data.id,
-  resolver: (_: undefined) => {
-    return Promise.resolve(postGenerator(100));
+  resolver: () => {
+    return Promise.resolve(postGenerator(10));
   },
 });
 

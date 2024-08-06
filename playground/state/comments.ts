@@ -31,7 +31,7 @@ export const useComment = createItemHook({
 export const useCommentList = createListHook({
   key,
   getId: (data) => data.id,
-  resolver: (_: undefined) => {
+  resolver: () => {
     return Promise.resolve(postGenerator(100));
   },
 });
