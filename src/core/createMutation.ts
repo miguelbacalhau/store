@@ -1,6 +1,6 @@
 import { buildItemKey, buildNewItemsKey } from '../factories/keys';
 import { Store } from '../factories/store';
-import { Reference } from './createReference';
+import { Reference } from '../factories/reference';
 
 export type CreateMutationConfig<TData, TId, TArgs> =
   | CreateOperationConfig<TData, TId, TArgs>

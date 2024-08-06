@@ -1,4 +1,4 @@
-import { Reference } from '../core/createReference';
+import { Reference } from './reference';
 
 export type StoreEntry<TData = unknown> = {
   externals: {

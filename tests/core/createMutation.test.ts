@@ -3,7 +3,7 @@ import { describe, expect, test } from '@jest/globals';
 import { createItem } from '../../src/core/createItem';
 import { createList } from '../../src/core/createList';
 import { createMutation } from '../../src/core/createMutation';
-import { createReference } from '../../src/core/createReference';
+import { createReference } from '../../src/factories/reference';
 import { buildItemKey } from '../../src/factories/keys';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
