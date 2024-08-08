@@ -16,7 +16,7 @@ describe('global store basic functions', () => {
     expect(store).toEqual({});
   });
 
-  test.only('initialization includes all necessary fields', () => {
+  test('initialization includes all necessary fields', () => {
     const { store, initEntry, getEntryInternals } = createStore();
 
     initEntry(key);
@@ -84,6 +84,9 @@ describe('global store basic functions', () => {
 
     const afterInitInternals = getEntryInternals(key);
 
-    expect(afterInitInternals).toEqual(initialEntryFixture.internals);
+    expect(afterInitInternals).toMatchObject({
+      forceChange: expect.any(Function),
+      referencedBy: expect.any(Set),
+    });
   });
 });

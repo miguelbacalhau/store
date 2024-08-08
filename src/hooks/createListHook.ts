@@ -37,12 +37,16 @@ export function createListHook<TData, TId, TArgs>({
 
     useEffect(() => {
       async function init() {
-        if (!list.isFetched && !list.data) {
+        if (!list.isFetched && !list.isLoading && !list.data) {
           setState({ isLoading: true });
 
-          const data = await resolver(args);
+          try {
+            const data = await resolver(args);
 
-          setState({ isLoading: false, isFetched: true, data });
+            setState({ isLoading: false, isFetched: true, data });
+          } catch (error) {
+            setState({ isLoading: false, error });
+          }
         }
       }
 

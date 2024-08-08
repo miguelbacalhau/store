@@ -38,12 +38,20 @@ export function createItemHook<TData, TId, TArgs>({
       async function init() {
         const itemExternals = store.getEntryExternals(itemKey);
 
-        if (!itemExternals.isFetched && !itemExternals.data) {
+        if (
+          !itemExternals.isFetched &&
+          !itemExternals.isLoading &&
+          !itemExternals.data
+        ) {
           setState({ isLoading: true });
 
-          const data = await resolver(args);
+          try {
+            const data = await resolver(args);
 
-          setState({ isLoading: false, isFetched: true, data });
+            setState({ isLoading: false, isFetched: true, data });
+          } catch (error) {
+            setState({ isLoading: false, error });
+          }
         }
       }
 

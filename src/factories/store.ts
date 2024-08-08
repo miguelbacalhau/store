@@ -5,6 +5,7 @@ export type StoreEntry<TData = unknown> = {
     isLoading: boolean;
     isFetched: boolean;
     data: null | TData;
+    error: null | unknown;
   };
   internals: {
     forceChange: () => void;
@@ -16,6 +17,7 @@ export const defaultEntryExternals: StoreEntry<null>['externals'] = {
   isLoading: false,
   isFetched: false,
   data: null,
+  error: null,
 };
 
 export function createStore() {
@@ -23,7 +25,12 @@ export function createStore() {
 
   function initEntry<TData>(key: string) {
     const entry: StoreEntry<TData> = {
-      externals: { data: null, isLoading: false, isFetched: false },
+      externals: {
+        data: null,
+        error: null,
+        isLoading: false,
+        isFetched: false,
+      },
       internals: { forceChange: () => {}, referencedBy: new Set() },
     };
 

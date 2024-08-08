@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 
 import { describe, expect, jest, test } from '@jest/globals';
-import { act, render } from '@testing-library/react';
+import { act, render, renderHook } from '@testing-library/react';
 import React, { ReactNode } from 'react';
 
 import { createItem } from '../../src/core/createItem';
@@ -14,8 +14,8 @@ import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
 const renderTracker = jest.fn();
 const key = 'Fish';
 
-// the component will render once initial and twice more, to set
-// the isLoading state and after to set the data state
+// the component will render once initially and twice more,
+// once to set the isLoading state and another to set the data state
 const BASE_RENDERS = 3;
 
 const useFish = createItemHook({
@@ -139,11 +139,7 @@ describe('createItemHook', () => {
     expect(renderTracker).not.toHaveBeenCalled();
 
     await act(async () => {
-      render(
-        <Provider>
-          <Component />
-        </Provider>,
-      );
+      render(<Component />);
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS - 1);
@@ -159,5 +155,53 @@ describe('createItemHook', () => {
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS - 1);
+  });
+
+  test('when the item resolver promise is rejects the hook should return the value rejection', async () => {
+    const { Provider } = createProvider();
+
+    const error = new Error('cannot load fish');
+
+    const useError = createItemHook({
+      key,
+      getId: (data) => data.id,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      resolver: (_: { id: number }) => Promise.reject(error),
+    });
+
+    const hookResult = await act(async () => {
+      const { result } = renderHook(() => useError({ id: 1 }), {
+        wrapper: Provider,
+      });
+
+      return result;
+    });
+
+    expect(hookResult.current.error).toEqual(error);
+  });
+
+  test('the item resolver throws an exception the hook should return the value thrown', async () => {
+    const { Provider } = createProvider();
+
+    const error = new Error('cannot load fish');
+
+    const useError = createItemHook({
+      key,
+      getId: (data) => data.id,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      resolver: async (_: { id: number }) => {
+        throw error;
+      },
+    });
+
+    const hookResult = await act(async () => {
+      const { result } = renderHook(() => useError({ id: 1 }), {
+        wrapper: Provider,
+      });
+
+      return result;
+    });
+
+    expect(hookResult.current.error).toEqual(error);
   });
 });
