@@ -61,14 +61,9 @@ export function createItem<TData, TId, TArgs, TSelect>(
       const listKey = reference.referenceKey;
 
       const listInternals = getEntryInternals(listKey);
-      const listExternals = getEntryExternals<TId[]>(listKey);
 
-      if (listExternals) {
-        const isItemInList = listExternals.data?.includes(id);
-
-        if (listInternals && isItemInList) {
-          listInternals.forceChange();
-        }
+      if (listInternals) {
+        listInternals.forceChange();
       }
     });
 
