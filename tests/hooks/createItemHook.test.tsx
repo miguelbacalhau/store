@@ -39,41 +39,40 @@ function createProvider() {
 
   return { Provider, store, listeners };
 }
-function createComponent() {
-  const { Provider, store, listeners } = createProvider();
-
-  function BaseComponent() {
-    renderTracker();
-
-    useFish({ id: 1 });
-
-    return <div>This is a component</div>;
-  }
-
-  function Component() {
-    return (
-      <Provider>
-        <BaseComponent />
-      </Provider>
-    );
-  }
-
-  return { Component, store, listeners };
-}
 
 describe('createItemHook', () => {
   test('the created hook should only trigger a render initially', async () => {
-    const { Component } = createComponent();
+    const { Provider } = createProvider();
+
+    function Component() {
+      renderTracker();
+
+      useFish({ id: 1 });
+
+      return <div>This is a component</div>;
+    }
 
     await act(async () => {
-      render(<Component />);
+      render(
+        <Provider>
+          <Component />
+        </Provider>,
+      );
     });
 
-    expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS);
+    expect(renderTracker).toHaveBeenCalledTimes(3);
   });
 
   test('the created hook should trigger another render when the store changes', async () => {
-    const { Component, store, listeners } = createComponent();
+    const { Provider, listeners, store } = createProvider();
+
+    function Component() {
+      renderTracker();
+
+      useFish({ id: 1 });
+
+      return <div>This is a component</div>;
+    }
 
     const { setState } = createItem(store, listeners, {
       key,
@@ -82,7 +81,11 @@ describe('createItemHook', () => {
     });
 
     await act(async () => {
-      render(<Component />);
+      render(
+        <Provider>
+          <Component />
+        </Provider>,
+      );
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS);
@@ -98,7 +101,15 @@ describe('createItemHook', () => {
   });
 
   test('the created hook should not trigger re-renders if there is already data in the store', async () => {
-    const { Component, store, listeners } = createComponent();
+    const { Provider, listeners, store } = createProvider();
+
+    function Component() {
+      renderTracker();
+
+      useFish({ id: 1 });
+
+      return <div>This is a component</div>;
+    }
 
     const { setState } = createItem(store, listeners, {
       key,
@@ -115,31 +126,35 @@ describe('createItemHook', () => {
     expect(renderTracker).not.toHaveBeenCalled();
 
     await act(async () => {
-      render(<Component />);
+      render(
+        <Provider>
+          <Component />
+        </Provider>,
+      );
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(1);
   });
 
-  test('the created hook should not trigger extra re-renders if the selected data does not change', async () => {
+  test('the created hook should should only track used properties and re-render only when they change', async () => {
     const { Provider, store, listeners } = createProvider();
 
     function Component() {
       renderTracker();
 
-      const fish = useFish({ id: 1 }, (state) => state.data);
+      const { data: fish } = useFish({ id: 1 });
 
-      return (
-        <Provider>
-          <div>{fish?.name}</div>
-        </Provider>
-      );
+      return <div>{fish?.name}</div>;
     }
 
     expect(renderTracker).not.toHaveBeenCalled();
 
     await act(async () => {
-      render(<Component />);
+      render(
+        <Provider>
+          <Component />
+        </Provider>,
+      );
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS - 1);
@@ -150,8 +165,10 @@ describe('createItemHook', () => {
       args: { id: 1 },
     });
 
-    setState({
-      isLoading: true,
+    await act(async () => {
+      setState({
+        isLoading: true,
+      });
     });
 
     expect(renderTracker).toHaveBeenCalledTimes(BASE_RENDERS - 1);

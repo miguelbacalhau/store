@@ -1,7 +1,6 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
 import { createNewItems, CreateNewItemsConfig } from '../core/createNewItems';
-import { buildItemKey } from '../factories/keys';
 import { useStore } from './useStore';
 
 type CreateNewItemsArg = CreateNewItemsConfig;
@@ -19,8 +18,8 @@ export function createNewItemsHook<TData>({ key }: CreateNewItemsArg) {
 
     const list = useSyncExternalStore(subscribe, getSnapshot);
 
-    const itemsData = list.data?.map((id) => {
-      const itemKey = buildItemKey(key, id);
+    const itemsData = list.data?.map((reference) => {
+      const itemKey = reference.referenceKey;
       const itemExternal = store.getEntryExternals<TData>(itemKey);
 
       return itemExternal.data;

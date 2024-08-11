@@ -1,3 +1,4 @@
+import { Listener } from './listeners';
 import { Reference } from './reference';
 
 export type StoreEntry<TData = unknown> = {
@@ -8,7 +9,7 @@ export type StoreEntry<TData = unknown> = {
     error: null | unknown;
   };
   internals: {
-    forceChange: () => void;
+    forceChange: Listener;
     referencedBy: Set<Reference>;
   };
 };

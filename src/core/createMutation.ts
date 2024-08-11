@@ -1,6 +1,6 @@
 import { buildItemKey, buildNewItemsKey } from '../factories/keys';
+import { createReference, Reference } from '../factories/reference';
 import { Store } from '../factories/store';
-import { Reference } from '../factories/reference';
 
 export type CreateMutationConfig<TData, TId, TArgs> =
   | CreateOperationConfig<TData, TId, TArgs>
@@ -72,8 +72,10 @@ async function createOperation<TData, TId>(
 
   const itemInternals = getEntryInternals(itemKey);
 
-  setEntryExternals(itemKey, { isLoading: false, data });
-  itemInternals?.forceChange();
+  const itemState = { isLoading: false, data };
+
+  setEntryExternals(itemKey, itemState);
+  itemInternals?.forceChange(Object.keys(itemState));
 
   const newItemsKey = buildNewItemsKey(key);
 
@@ -84,12 +86,14 @@ async function createOperation<TData, TId>(
   const newItemsExternals = getEntryExternals<TId[]>(newItemsKey);
   const newItemsInternals = getEntryInternals(newItemsKey);
 
-  const ids = newItemsExternals.data ? newItemsExternals.data : [];
+  const refs = newItemsExternals.data ? newItemsExternals.data : [];
 
-  setEntryExternals(newItemsKey, {
-    data: [...ids, itemId],
-  });
-  newItemsInternals?.forceChange();
+  const newItemState = {
+    data: [...refs, createReference(itemKey)],
+  };
+
+  setEntryExternals(newItemsKey, newItemState);
+  newItemsInternals?.forceChange(Object.keys(newItemState));
 }
 
 async function updateOperation<TData, TId, TArgs>(
@@ -103,20 +107,23 @@ async function updateOperation<TData, TId, TArgs>(
   const itemKey = buildItemKey(key, itemId);
   const itemInternals = getEntryInternals(itemKey);
 
-  setEntryExternals(itemKey, { isLoading: true });
+  const loadingState = { isLoading: true };
+  setEntryExternals(itemKey, loadingState);
 
-  itemInternals?.forceChange();
+  itemInternals?.forceChange(Object.keys(loadingState));
 
   const data = await resolver(args);
 
-  setEntryExternals(itemKey, { isLoading: false, data });
+  const resolvedState = { isLoading: false, data };
+  setEntryExternals(itemKey, resolvedState);
 
-  itemInternals?.forceChange();
+  itemInternals?.forceChange(Object.keys(resolvedState));
 
   itemInternals?.referencedBy.forEach((reference) => {
     const listInternals = getEntryInternals(reference.referenceKey);
 
-    listInternals?.forceChange();
+    // when an item changes then the list data should also change
+    listInternals?.forceChange(['data']);
   });
 }
 
@@ -131,13 +138,16 @@ async function deleteOperation<TData, TId, TArgs>(
   const itemKey = buildItemKey(key, itemId);
   const itemInternals = getEntryInternals(itemKey);
 
-  setEntryExternals(itemKey, { isLoading: true });
-  itemInternals?.forceChange();
+  const loadingState = { isLoading: true };
+  setEntryExternals(itemKey, loadingState);
+  itemInternals?.forceChange(Object.keys(loadingState));
 
   await resolver(args);
 
-  setEntryExternals(itemKey, { isLoading: false, data: null });
-  itemInternals?.forceChange();
+  const resolvedState = { isLoading: false, data: null };
+
+  setEntryExternals(itemKey, resolvedState);
+  itemInternals?.forceChange(Object.keys(resolvedState));
 
   itemInternals?.referencedBy.forEach((reference) => {
     const listKey = reference.referenceKey;
@@ -145,13 +155,15 @@ async function deleteOperation<TData, TId, TArgs>(
     const listInternals = getEntryInternals(listKey);
     const listExternals = getEntryExternals<Reference[]>(listKey);
 
-    const ids = listExternals.data?.filter((reference) => {
+    const refs = listExternals.data?.filter((reference) => {
       return reference.referenceKey !== itemKey;
     });
 
-    if (ids) {
-      setEntryExternals(listKey, { data: ids });
-      listInternals?.forceChange();
+    if (refs) {
+      const listState = { data: refs };
+
+      setEntryExternals(listKey, listState);
+      listInternals?.forceChange(Object.keys(listState));
     }
   });
 }

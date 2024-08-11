@@ -2,6 +2,7 @@ import { buildItemKey, buildListKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
 import { createReference, Reference } from '../factories/reference';
 import { Store, StoreEntry } from '../factories/store';
+import { createTracker } from '../factories/tracker';
 
 export type CreateListConfig<TData, TId, TArgs> = {
   key: string;
@@ -22,13 +23,15 @@ export function createList<TData, TId, TArgs>(
 ) {
   const listKey = buildListKey(key, args);
 
-  function triggerChange() {
-    triggerListeners(listKey);
+  const tracker = createTracker();
+
+  function triggerChange(changedKeys: string[]) {
+    triggerListeners(listKey, changedKeys);
   }
 
   // the list only stores the ids of the items so to trigger a change it's necessary
   // to create a new data entry so that react will trigger a re-render
-  function forceChange() {
+  function forceChange(changedKeys: string[]) {
     const listExternals = getEntryExternals<Reference[]>(listKey);
     const references = listExternals?.data;
 
@@ -37,14 +40,24 @@ export function createList<TData, TId, TArgs>(
       data: references ? [...references] : [],
     });
 
-    triggerChange();
+    triggerChange(changedKeys);
   }
 
   function subscribe(listener: () => void) {
-    addListener(listKey, listener);
+    function narrowedListener(changedKeys: string[]) {
+      const isTracked = tracker.isTracking(changedKeys);
+
+      if (isTracked) {
+        tracker.reset();
+
+        listener();
+      }
+    }
+
+    addListener(listKey, narrowedListener);
 
     return () => {
-      removeListener(listKey, listener);
+      removeListener(listKey, narrowedListener);
     };
   }
 
@@ -73,11 +86,13 @@ export function createList<TData, TId, TArgs>(
       ...(dataIds ? { data: dataIds } : {}),
     });
 
-    triggerChange();
+    triggerChange(Object.keys(state));
   }
 
   function getSnapshot() {
-    return getEntryExternals<Reference[]>(listKey);
+    const externals = getEntryExternals<Reference[]>(listKey);
+
+    return tracker.track(externals);
   }
 
   if (!hasEntry(listKey)) {

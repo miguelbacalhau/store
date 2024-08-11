@@ -1,12 +1,13 @@
 import { buildNewItemsKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
+import { Reference } from '../factories/reference';
 import { Store } from '../factories/store';
 
 export type CreateNewItemsConfig = {
   key: string;
 };
 
-export function createNewItems<TId>(
+export function createNewItems(
   {
     initEntry,
     hasEntry,
@@ -19,20 +20,20 @@ export function createNewItems<TId>(
 ) {
   const newItemsKey = buildNewItemsKey(key);
 
-  function triggerChange() {
-    triggerListeners(newItemsKey);
+  function triggerChange(changedKeys: string[]) {
+    triggerListeners(newItemsKey, changedKeys);
   }
 
   function forceChange() {
-    const listExternals = getEntryExternals<TId[]>(newItemsKey);
-    const ids = listExternals?.data;
+    const listExternals = getEntryExternals<Reference[]>(newItemsKey);
+    const refs = listExternals?.data;
 
     setEntryExternals(newItemsKey, {
       ...listExternals,
-      data: ids ? [...ids] : [],
+      data: refs ? [...refs] : [],
     });
 
-    triggerChange();
+    triggerChange(['data']);
   }
 
   function subscribe(listener: () => void) {
@@ -44,7 +45,7 @@ export function createNewItems<TId>(
   }
 
   function getSnapshot() {
-    return getEntryExternals<TId[]>(newItemsKey);
+    return getEntryExternals<Reference[]>(newItemsKey);
   }
 
   if (!hasEntry(newItemsKey)) {

@@ -1,7 +1,9 @@
-export function createListeners() {
-  const listenerMap: Record<string, (() => void)[]> = {};
+export type Listener = (trackedKeys: string[]) => void;
 
-  function addListener(key: string, listener: () => void) {
+export function createListeners() {
+  const listenerMap: Record<string, Listener[]> = {};
+
+  function addListener(key: string, listener: Listener) {
     if (listenerMap[key]) {
       listenerMap[key].push(listener);
     } else {
@@ -9,12 +11,12 @@ export function createListeners() {
     }
   }
 
-  function removeListener(key: string, listener: () => void) {
+  function removeListener(key: string, listener: Listener) {
     listenerMap[key] = listenerMap[key]?.filter((l) => l !== listener);
   }
 
-  function triggerListeners(key: string) {
-    listenerMap[key]?.forEach((listener) => listener());
+  function triggerListeners(key: string, trackedKeys: string[]) {
+    listenerMap[key]?.forEach((listener) => listener(trackedKeys));
   }
 
   return { addListener, removeListener, triggerListeners, listenerMap };

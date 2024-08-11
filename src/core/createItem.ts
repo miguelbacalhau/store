@@ -1,30 +1,16 @@
 import { buildItemKey } from '../factories/keys';
 import { Listeners } from '../factories/listeners';
 import { Store, StoreEntry } from '../factories/store';
+import { createTracker } from '../factories/tracker';
 
-export type Selector<TData, TSelect> = (
-  data: StoreEntry<TData>['externals'],
-) => TSelect;
-
-type CreateItemConfigBase<TData, TId, TArgs> = {
+export type CreateItemConfig<TData, TId, TArgs> = {
   key: string;
   getId: (args: TArgs, data?: TData) => TId;
   args: TArgs;
   selector?: undefined;
 };
 
-type CreateItemConfigSelector<TData, TId, TArgs, TSelect> = {
-  key: string;
-  getId: (args: TArgs, data?: TData) => TId;
-  args: TArgs;
-  selector: (data: StoreEntry<TData>['externals']) => TSelect;
-};
-
-export type CreateItemConfig<TData, TId, TArgs, TSelect> =
-  | CreateItemConfigBase<TData, TId, TArgs>
-  | CreateItemConfigSelector<TData, TId, TArgs, TSelect>;
-
-export function createItem<TData, TId, TArgs, TSelect>(
+export function createItem<TData, TId, TArgs>(
   {
     initEntry,
     hasEntry,
@@ -33,23 +19,35 @@ export function createItem<TData, TId, TArgs, TSelect>(
     setEntryExternals,
   }: Store,
   { addListener, removeListener, triggerListeners }: Listeners,
-  config: CreateItemConfig<TData, TId, TArgs, TSelect>,
+  config: CreateItemConfig<TData, TId, TArgs>,
 ) {
   const { key, args, getId } = config;
 
   const id = getId(args);
   const itemKey = buildItemKey(key, id);
 
+  const tracker = createTracker();
+
   function subscribe(listener: () => void) {
-    addListener(itemKey, listener);
+    function narrowedListener(changedKeys: string[]) {
+      const isTracked = tracker.isTracking(changedKeys);
+
+      if (isTracked) {
+        tracker.reset();
+
+        listener();
+      }
+    }
+
+    addListener(itemKey, narrowedListener);
 
     return () => {
-      removeListener(itemKey, listener);
+      removeListener(itemKey, narrowedListener);
     };
   }
 
-  function triggerChange() {
-    triggerListeners(itemKey);
+  function triggerChange(trackedKeys: string[]) {
+    triggerListeners(itemKey, trackedKeys);
   }
 
   function setState(state: Partial<StoreEntry['externals']>) {
@@ -63,17 +61,18 @@ export function createItem<TData, TId, TArgs, TSelect>(
       const listInternals = getEntryInternals(listKey);
 
       if (listInternals) {
-        listInternals.forceChange();
+        // item changes trigger changes to the list data property
+        listInternals.forceChange(['data']);
       }
     });
 
-    triggerChange();
+    triggerChange(Object.keys(state));
   }
 
   function getSnapshot() {
     const externals = getEntryExternals<TData>(itemKey);
 
-    return config.selector ? config.selector(externals) : externals;
+    return tracker.track(externals);
   }
 
   if (!hasEntry(itemKey)) {
