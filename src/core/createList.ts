@@ -62,7 +62,7 @@ export function createList<TData, TId, TArgs>(
   }
 
   function setState(state: Partial<StoreEntry<TData[]>['externals']>) {
-    const dataIds = state?.data?.map((item) => {
+    const references = state?.data?.map((item) => {
       const id = getId(item);
       const itemKey = buildItemKey(key, id);
 
@@ -83,7 +83,7 @@ export function createList<TData, TId, TArgs>(
 
     setEntryExternals(listKey, {
       ...state,
-      ...(dataIds ? { data: dataIds } : {}),
+      ...(references ? { data: references } : {}),
     });
 
     triggerChange(Object.keys(state));

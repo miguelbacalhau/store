@@ -7,7 +7,6 @@ export type CreateItemConfig<TData, TId, TArgs> = {
   key: string;
   getId: (args: TArgs, data?: TData) => TId;
   args: TArgs;
-  selector?: undefined;
 };
 
 export function createItem<TData, TId, TArgs>(

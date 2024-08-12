@@ -15,7 +15,6 @@ export function Popover<TElement extends HTMLElement>({
   const popoverRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    console.log(triggerRef);
     if (triggerRef.current) {
       triggerRef.current.onclick = () => {
         handleToggle();

@@ -2,23 +2,22 @@ import { CSSProperties } from 'react';
 
 import { StoreEntry } from '../../factories/store';
 import { Separator } from '../ui/Separator';
-import { EntryExternals } from './EntryExternals';
-import { EntryHeader } from './EntryHeader';
-import { EntryInternals } from './EntryInternals';
+import { EntryDetailsExternals } from './EntryDetailsExternals';
+import { EntryDetailsHeader } from './EntryDetailsHeader';
+import { EntryDetailsInternals } from './EntryDetailsInternals';
 
 type EntryDetailsProps = {
   entryKey: string;
   entry: StoreEntry;
 };
 export function EntryDetails({ entryKey, entry }: EntryDetailsProps) {
-  console.log(entryKey);
   return (
     <div style={entryDetailsStyle}>
-      <EntryHeader entryKey={entryKey} entry={entry} />
+      <EntryDetailsHeader entryKey={entryKey} />
       <Separator />
-      <EntryExternals externals={entry.externals} />
+      <EntryDetailsExternals externals={entry.externals} />
       <Separator />
-      <EntryInternals internals={entry.internals} />
+      <EntryDetailsInternals internals={entry.internals} />
     </div>
   );
 }
