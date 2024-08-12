@@ -19,7 +19,11 @@ export function createListeners() {
     listenerMap[key]?.forEach((listener) => listener(trackedKeys));
   }
 
-  return { addListener, removeListener, triggerListeners, listenerMap };
+  function getListenedKeys() {
+    return Object.keys(listenerMap);
+  }
+
+  return { addListener, removeListener, triggerListeners, getListenedKeys };
 }
 
 export type Listeners = ReturnType<typeof createListeners>;

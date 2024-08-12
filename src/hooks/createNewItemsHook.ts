@@ -1,7 +1,7 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
 import { createNewItems, CreateNewItemsConfig } from '../core/createNewItems';
-import { useStore } from './useStore';
+import { useStore } from '../react/useStore';
 
 type CreateNewItemsArg = CreateNewItemsConfig;
 

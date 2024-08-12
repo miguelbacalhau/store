@@ -2,7 +2,7 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
 import { createItem, CreateItemConfig } from '../core/createItem';
 import { buildItemKey } from '../factories/keys';
-import { useStore } from './useStore';
+import { useStore } from '../react/useStore';
 
 type UseItemArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData>;

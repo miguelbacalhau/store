@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { createMutation, CreateMutationConfig } from '../core/createMutation';
-import { useStore } from './useStore';
+import { useStore } from '../react/useStore';
 
 export function createMutationHook<TData, TId, TArgs>(
   config: CreateMutationConfig<TData, TId, TArgs>,

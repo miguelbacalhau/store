@@ -1,7 +1,6 @@
 import { CSSProperties, useState } from 'react';
 
 import { deconstructKey } from '../factories/keys';
-import { useStore } from '../hooks/useStore';
 import { EntryDetails } from './components/EntryDetails';
 import { EntryInfo } from './components/EntryInfo';
 import { QuickFilter } from './components/QuickFilters';
@@ -10,9 +9,10 @@ import { space100 } from './cssTokens/spacings';
 import { useRouter } from './router/useRouter';
 import { Button } from './ui/Button';
 import { Drawer } from './ui/Drawer';
+import { useDevStore } from './useDevStore';
 
 export function DevTools() {
-  const { store, listeners } = useStore();
+  const store = useDevStore();
 
   const [isVisible, setIsVisible] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
@@ -78,8 +78,6 @@ export function DevTools() {
         <div style={layoutStyle}>
           <div style={listStyle}>
             {filteredEntries.map(([key]) => {
-              const listenerCount = listeners.listenerMap[key]?.length;
-
               const [mainKey, typeKey, restKey] = deconstructKey(key);
 
               return (
@@ -88,7 +86,6 @@ export function DevTools() {
                   mainKey={mainKey}
                   typeKey={typeKey}
                   restKey={restKey}
-                  listenerCount={listenerCount}
                   onClick={() => navigate(key)}
                 />
               );
