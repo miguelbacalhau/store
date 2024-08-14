@@ -8,7 +8,7 @@ import { createItem } from '../../src/core/createItem';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
 import { createItemHook } from '../../src/hooks/createItemHook';
-import { StoreProvider } from '../../src/hooks/StoreProvider';
+import { StoreProvider } from '../../src/react/StoreProvider';
 import { initialEntryExternalFixture } from '../fixtures/storeFixtures';
 
 const renderTracker = jest.fn();

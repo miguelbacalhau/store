@@ -7,7 +7,7 @@ import React, { ReactNode } from 'react';
 import { createListeners } from '../../src/factories/listeners';
 import { createStore } from '../../src/factories/store';
 import { createListHook } from '../../src/hooks/createListHook';
-import { StoreProvider } from '../../src/hooks/StoreProvider';
+import { StoreProvider } from '../../src/react/StoreProvider';
 
 const key = 'Fish';
 

@@ -12,7 +12,7 @@ import { createItemHook } from '../../src/hooks/createItemHook';
 import { createListHook } from '../../src/hooks/createListHook';
 import { createMutationHook } from '../../src/hooks/createMutationHook';
 import { createNewItemsHook } from '../../src/hooks/createNewItemsHook';
-import { StoreProvider } from '../../src/hooks/StoreProvider';
+import { StoreProvider } from '../../src/react/StoreProvider';
 
 const key = 'Fish';
 
