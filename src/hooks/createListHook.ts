@@ -2,6 +2,7 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
 import { createList, CreateListConfig } from '../core/createList';
 import { useStore } from '../react/useStore';
+import { buildListKey } from '../factories/keys';
 
 type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;
@@ -25,19 +26,19 @@ export function createListHook<TData, TId, TArgs>({
     );
 
     const list = useSyncExternalStore(subscribe, getSnapshot);
-
-    const itemsData = list.data?.map((reference) => {
-      const itemKey = reference.referenceKey;
-      const itemExternal = store.getEntryExternals<TData>(itemKey);
-
-      return itemExternal.data;
-    });
-
-    const listWithData = { ...list, data: itemsData || null };
+    const listKey = buildListKey(key, args);
 
     useEffect(() => {
       async function init() {
-        if (!list.isFetched && !list.isLoading && !list.data) {
+        // fetch the entry data directly from the store to make sure it's
+        // up to date
+        const listExternals = store.getEntryExternals(listKey);
+
+        if (
+          !listExternals.isFetched &&
+          !listExternals.isLoading &&
+          !listExternals.data
+        ) {
           setState({ isLoading: true });
 
           try {
@@ -53,6 +54,15 @@ export function createListHook<TData, TId, TArgs>({
       init();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const itemsData = list.data?.map((reference) => {
+      const itemKey = reference.referenceKey;
+      const itemExternal = store.getEntryExternals<TData>(itemKey);
+
+      return itemExternal.data;
+    });
+
+    const listWithData = { ...list, data: itemsData || null };
 
     return listWithData;
   }
