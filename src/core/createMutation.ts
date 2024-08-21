@@ -74,8 +74,10 @@ async function createOperation<TData, TId>(
 
   const itemState = { isLoading: false, data };
 
-  setEntryExternals(itemKey, itemState);
-  itemInternals?.forceChange(Object.keys(itemState));
+  const loadingTrxId = Date.now();
+
+  setEntryExternals(loadingTrxId, itemKey, itemState);
+  itemInternals?.forceChange(loadingTrxId, Object.keys(itemState));
 
   const newItemsKey = buildNewItemsKey(key);
 
@@ -92,8 +94,10 @@ async function createOperation<TData, TId>(
     data: [...refs, createReference(itemKey)],
   };
 
-  setEntryExternals(newItemsKey, newItemState);
-  newItemsInternals?.forceChange(Object.keys(newItemState));
+  const createTrxId = Date.now();
+
+  setEntryExternals(createTrxId, newItemsKey, newItemState);
+  newItemsInternals?.forceChange(createTrxId, Object.keys(newItemState));
 }
 
 async function updateOperation<TData, TId, TArgs>(
@@ -108,22 +112,24 @@ async function updateOperation<TData, TId, TArgs>(
   const itemInternals = getEntryInternals(itemKey);
 
   const loadingState = { isLoading: true };
-  setEntryExternals(itemKey, loadingState);
+  const loadingTrxId = Date.now();
 
-  itemInternals?.forceChange(Object.keys(loadingState));
+  setEntryExternals(loadingTrxId, itemKey, loadingState);
+  itemInternals?.forceChange(loadingTrxId, Object.keys(loadingState));
 
   const data = await resolver(args);
 
   const resolvedState = { isLoading: false, data };
-  setEntryExternals(itemKey, resolvedState);
+  const updateTrxId = Date.now();
 
-  itemInternals?.forceChange(Object.keys(resolvedState));
+  setEntryExternals(updateTrxId, itemKey, resolvedState);
+  itemInternals?.forceChange(updateTrxId, Object.keys(resolvedState));
 
   itemInternals?.referencedBy.forEach((reference) => {
     const listInternals = getEntryInternals(reference.referenceKey);
 
     // when an item changes then the list data should also change
-    listInternals?.forceChange(['data']);
+    listInternals?.forceChange(updateTrxId, ['data']);
   });
 }
 
@@ -139,15 +145,18 @@ async function deleteOperation<TData, TId, TArgs>(
   const itemInternals = getEntryInternals(itemKey);
 
   const loadingState = { isLoading: true };
-  setEntryExternals(itemKey, loadingState);
-  itemInternals?.forceChange(Object.keys(loadingState));
+  const loadingTrxId = Date.now();
+
+  setEntryExternals(loadingTrxId, itemKey, loadingState);
+  itemInternals?.forceChange(loadingTrxId, Object.keys(loadingState));
 
   await resolver(args);
 
   const resolvedState = { isLoading: false, data: null };
+  const deleteTrxId = Date.now();
 
-  setEntryExternals(itemKey, resolvedState);
-  itemInternals?.forceChange(Object.keys(resolvedState));
+  setEntryExternals(deleteTrxId, itemKey, resolvedState);
+  itemInternals?.forceChange(deleteTrxId, Object.keys(resolvedState));
 
   itemInternals?.referencedBy.forEach((reference) => {
     const listKey = reference.referenceKey;
@@ -162,8 +171,8 @@ async function deleteOperation<TData, TId, TArgs>(
     if (refs) {
       const listState = { data: refs };
 
-      setEntryExternals(listKey, listState);
-      listInternals?.forceChange(Object.keys(listState));
+      setEntryExternals(deleteTrxId, listKey, listState);
+      listInternals?.forceChange(deleteTrxId, Object.keys(listState));
     }
   });
 }

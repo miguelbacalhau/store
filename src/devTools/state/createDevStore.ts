@@ -1,5 +1,5 @@
-import { Listeners } from '../factories/listeners';
-import { Store } from '../factories/store';
+import { Listeners } from '../../factories/listeners';
+import { Store } from '../../factories/store';
 
 export function createDevStore(store: Store, listeners: Listeners) {
   let storeCache = { ...store };
@@ -8,7 +8,7 @@ export function createDevStore(store: Store, listeners: Listeners) {
     function listenerWithUpdate() {
       // reset cache the dev store should always trigger a re-render
       // whenever a change is triggered
-      storeCache = { ...store };
+      storeCache = { ...storeCache, store: { ...storeCache.store } };
       listener();
     }
 

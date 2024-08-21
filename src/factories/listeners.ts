@@ -1,4 +1,4 @@
-export type Listener = (trackedKeys: string[]) => void;
+export type Listener = (transactionId: number, trackedKeys: string[]) => void;
 
 export function createListeners() {
   const listenerMap: Record<string, Listener[]> = {};
@@ -15,8 +15,14 @@ export function createListeners() {
     listenerMap[key] = listenerMap[key]?.filter((l) => l !== listener);
   }
 
-  function triggerListeners(key: string, trackedKeys: string[]) {
-    listenerMap[key]?.forEach((listener) => listener(trackedKeys));
+  function triggerListeners(
+    transactionId: number,
+    key: string,
+    trackedKeys: string[],
+  ) {
+    listenerMap[key]?.forEach((listener) =>
+      listener(transactionId, trackedKeys),
+    );
   }
 
   function getListenedKeys() {

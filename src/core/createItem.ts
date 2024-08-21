@@ -28,7 +28,7 @@ export function createItem<TData, TId, TArgs>(
   const tracker = createTracker();
 
   function subscribe(listener: () => void) {
-    function narrowedListener(changedKeys: string[]) {
+    function narrowedListener(_transactionId: number, changedKeys: string[]) {
       const isTracked = tracker.isTracking(changedKeys);
 
       if (isTracked) {
@@ -45,12 +45,13 @@ export function createItem<TData, TId, TArgs>(
     };
   }
 
-  function triggerChange(trackedKeys: string[]) {
-    triggerListeners(itemKey, trackedKeys);
+  function triggerChange(transactionId: number, trackedKeys: string[]) {
+    triggerListeners(transactionId, itemKey, trackedKeys);
   }
 
   function setState(state: Partial<StoreEntry['externals']>) {
-    setEntryExternals(itemKey, state);
+    const transactionId = Date.now();
+    setEntryExternals(transactionId, itemKey, state);
 
     const itemInternals = getEntryInternals(itemKey);
 
@@ -61,11 +62,11 @@ export function createItem<TData, TId, TArgs>(
 
       if (listInternals) {
         // item changes trigger changes to the list data property
-        listInternals.forceChange(['data']);
+        listInternals.forceChange(transactionId, ['data']);
       }
     });
 
-    triggerChange(Object.keys(state));
+    triggerChange(transactionId, Object.keys(state));
   }
 
   function getSnapshot() {

@@ -1,6 +1,8 @@
 import { Listener } from './listeners';
 import { Reference } from './reference';
 
+export type Store = ReturnType<typeof createStore>;
+
 export type StoreEntry<TData = unknown> = {
   externals: {
     isLoading: boolean;
@@ -11,6 +13,7 @@ export type StoreEntry<TData = unknown> = {
   internals: {
     forceChange: Listener;
     referencedBy: Set<Reference>;
+    lastTransactionId: number;
   };
 };
 
@@ -32,7 +35,11 @@ export function createStore() {
         isLoading: false,
         isFetched: false,
       },
-      internals: { forceChange: () => {}, referencedBy: new Set() },
+      internals: {
+        forceChange: () => {},
+        referencedBy: new Set(),
+        lastTransactionId: Date.now(),
+      },
     };
 
     store[key] = entry;
@@ -43,6 +50,7 @@ export function createStore() {
   }
 
   function setEntryExternals(
+    transactionId: number,
     key: string,
     newExternals: Partial<StoreEntry['externals']>,
   ) {
@@ -53,6 +61,7 @@ export function createStore() {
     const externals = store[key].externals;
 
     store[key].externals = { ...externals, ...newExternals };
+    store[key].internals.lastTransactionId = transactionId;
   }
 
   function getEntryExternals<TData>(key: string) {
@@ -76,5 +85,3 @@ export function createStore() {
     getEntryInternals,
   };
 }
-
-export type Store = ReturnType<typeof createStore>;

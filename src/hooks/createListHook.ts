@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
 import { createList, CreateListConfig } from '../core/createList';
-import { useStore } from '../react/useStore';
 import { buildListKey } from '../factories/keys';
+import { useStore } from '../react/useStore';
 
 type UseListArgs<TData, TId, TArgs> = {
   resolver: (args: TArgs) => Promise<TData[]>;

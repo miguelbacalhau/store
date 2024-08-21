@@ -4,15 +4,18 @@ import { deconstructKey } from '../factories/keys';
 import { EntryDetails } from './components/EntryDetails';
 import { EntryInfo } from './components/EntryInfo';
 import { QuickFilter } from './components/QuickFilters';
+import { Timeline } from './components/Timeline';
 import { grayscaleBlack } from './cssTokens/colors';
 import { space100 } from './cssTokens/spacings';
 import { useRouter } from './router/useRouter';
+import { useDevStore } from './state/useDevStore';
+import { useTimeTravel } from './state/useTimeTravel';
 import { Button } from './ui/Button';
 import { Drawer } from './ui/Drawer';
-import { useDevStore } from './useDevStore';
 
 export function DevTools() {
-  const store = useDevStore();
+  const { devStore } = useDevStore();
+  const { timeTravelTo, currentTime, timelineSize } = useTimeTravel();
 
   const [isVisible, setIsVisible] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
@@ -31,9 +34,9 @@ export function DevTools() {
   }
 
   const selectedKey = currentRoute;
-  const selectedEntry = selectedKey && store.store[selectedKey];
+  const selectedEntry = selectedKey && devStore.store[selectedKey];
 
-  const storeEntries = Object.entries(store.store);
+  const storeEntries = Object.entries(devStore.store);
   const filteredEntries = filter
     ? storeEntries.filter(([key]) => {
         const mainKey = deconstructKey(key)[0];
@@ -70,6 +73,11 @@ export function DevTools() {
               {'>'}
             </Button>
           </div>
+          <Timeline
+            currentTime={currentTime}
+            timelineSize={timelineSize}
+            timeTravelTo={timeTravelTo}
+          />
           <QuickFilter
             filters={mainKeys}
             onSelect={(filter) => setFilter(filter)}
@@ -114,6 +122,7 @@ const headerStyle: CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   padding: `${space100} 0 ${space100} 0`,
+  gap: space100,
 };
 
 const listStyle: CSSProperties = {

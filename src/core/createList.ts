@@ -25,26 +25,26 @@ export function createList<TData, TId, TArgs>(
 
   const tracker = createTracker();
 
-  function triggerChange(changedKeys: string[]) {
-    triggerListeners(listKey, changedKeys);
+  function triggerChange(transactionId: number, changedKeys: string[]) {
+    triggerListeners(transactionId, listKey, changedKeys);
   }
 
   // the list only stores the ids of the items so to trigger a change it's necessary
   // to create a new data entry so that react will trigger a re-render
-  function forceChange(changedKeys: string[]) {
+  function forceChange(transactionId: number, changedKeys: string[]) {
     const listExternals = getEntryExternals<Reference[]>(listKey);
     const references = listExternals?.data;
 
-    setEntryExternals(listKey, {
+    setEntryExternals(transactionId, listKey, {
       ...listExternals,
       data: references ? [...references] : [],
     });
 
-    triggerChange(changedKeys);
+    triggerChange(transactionId, changedKeys);
   }
 
   function subscribe(listener: () => void) {
-    function narrowedListener(changedKeys: string[]) {
+    function narrowedListener(_transactionId: number, changedKeys: string[]) {
       const isTracked = tracker.isTracking(changedKeys);
 
       if (isTracked) {
@@ -62,6 +62,7 @@ export function createList<TData, TId, TArgs>(
   }
 
   function setState(state: Partial<StoreEntry<TData[]>['externals']>) {
+    const transactionId = Date.now();
     const references = state?.data?.map((item) => {
       const id = getId(item);
       const itemKey = buildItemKey(key, id);
@@ -70,7 +71,7 @@ export function createList<TData, TId, TArgs>(
         initEntry(itemKey);
       }
 
-      setEntryExternals(itemKey, { data: item });
+      setEntryExternals(transactionId, itemKey, { data: item });
 
       const itemInternals = getEntryInternals(itemKey);
 
@@ -81,12 +82,12 @@ export function createList<TData, TId, TArgs>(
       return createReference(itemKey);
     });
 
-    setEntryExternals(listKey, {
+    setEntryExternals(transactionId, listKey, {
       ...state,
       ...(references ? { data: references } : {}),
     });
 
-    triggerChange(Object.keys(state));
+    triggerChange(transactionId, Object.keys(state));
   }
 
   function getSnapshot() {

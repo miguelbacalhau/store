@@ -17,10 +17,11 @@ function Root() {
 function App() {
   return (
     <div style={appStyle}>
-      <RouterProvider>
-        <Root />
-      </RouterProvider>
-      <DevToolsProvider />
+      <DevToolsProvider>
+        <RouterProvider>
+          <Root />
+        </RouterProvider>
+      </DevToolsProvider>
     </div>
   );
 }
