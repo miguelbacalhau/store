@@ -28,7 +28,10 @@ export function EntryDetailsInternals({ internals }: EntryInternalsProps) {
 const titleStyle: CSSProperties = {
   padding: `${space100}`,
   fontWeight: fontWeight500,
+  borderRight: '1px solid black',
 };
 const internalsStyle: CSSProperties = {
   padding: `${space100}`,
+  borderRight: '1px solid black',
+  borderBottom: '1px solid black',
 };

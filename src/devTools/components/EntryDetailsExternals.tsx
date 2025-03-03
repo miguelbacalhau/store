@@ -25,8 +25,10 @@ export function EntryDetailsExternals({ externals }: EntryExternalsProps) {
 const titleStyle: CSSProperties = {
   padding: `${space100}`,
   fontWeight: fontWeight500,
+  borderRight: '1px solid black',
 };
 
 const externalsStyle: CSSProperties = {
   padding: `${space100}`,
+  borderRight: '1px solid black',
 };

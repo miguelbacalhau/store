@@ -2,6 +2,7 @@ import { createItemHook } from '../../src/hooks/createItemHook';
 import { createListHook } from '../../src/hooks/createListHook';
 import { createMutationHook } from '../../src/hooks/createMutationHook';
 import { createNewItemsHook } from '../../src/hooks/createNewItemsHook';
+import { timeout } from '../utils/timeout';
 
 export type Post = { id: number; title: string; description: string };
 
@@ -25,6 +26,7 @@ export const usePost = createItemHook({
   key,
   getId: (data) => data.id,
   resolver: async (args: Pick<Post, 'id'>) => {
+    await timeout(2000);
     return Promise.resolve({ id: args.id, name: 'Mike' });
   },
 });

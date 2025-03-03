@@ -14,7 +14,6 @@ export function EntryDetails({ entryKey, entry }: EntryDetailsProps) {
   return (
     <div style={entryDetailsStyle}>
       <EntryDetailsHeader entryKey={entryKey} />
-      <Separator />
       <EntryDetailsExternals externals={entry.externals} />
       <Separator />
       <EntryDetailsInternals internals={entry.internals} />

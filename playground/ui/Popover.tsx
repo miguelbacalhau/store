@@ -39,7 +39,7 @@ export function Popover<TElement extends HTMLElement>({
 }
 
 const popoverStyle: CSSProperties = {
-  height: '70vh',
+  height: '40vh',
   width: '60vw',
   padding: space300,
   borderRadius: radius50,

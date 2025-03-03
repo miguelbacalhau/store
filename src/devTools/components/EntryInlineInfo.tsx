@@ -45,6 +45,7 @@ function getTypeText(typeKey: string) {
 const entryStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr 6fr',
+  borderBottom: '1px solid black',
 };
 
 const entryKeyStyle: CSSProperties = {

@@ -18,7 +18,7 @@ export function Drawer({ onClose, initialSize, children }: DrawerProps) {
     setSize((prevSize) => {
       const newSize = prevSize + y;
 
-      if (newSize > 500 || newSize < 150) {
+      if (newSize > 700 || newSize < 150) {
         return prevSize;
       }
       return newSize;
@@ -33,7 +33,7 @@ export function Drawer({ onClose, initialSize, children }: DrawerProps) {
       />
       <div style={{ ...drawerContentStyle }}>
         <div>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>X</Button>
         </div>
         <div style={{ ...drawerContentBodyStyle, height: size }}>
           {children}
